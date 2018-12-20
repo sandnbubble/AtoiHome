@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	app:layout_behavior="@string/appbar_scrolling_view_behavior"
+	tools:showIn="@layout/activity_main"
+	android:minWidth="25px"
+	android:minHeight="25px">
+	<android.support.design.widget.TextInputEditText
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/edHostIP"
+		android:layout_marginLeft="0.0dp"
+		android:layout_marginBottom="0.0dp" />
+	<ImageView
+		android:src="@android:drawable/ic_menu_gallery"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:id="@+id/imageView1" />
+	<Button
+		android:text="Start"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/edHostIP"
+		android:id="@+id/buttonStartService"
+		/>
+	<Button
+		android:text="Stop"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/edHostIP"
+		android:id="@+id/buttonStopService"
+		android:layout_toRightOf="@id/buttonStartService" 
+		 />
+	<Button
+		android:text="Exit"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@id/buttonStopService"
+		android:layout_below="@id/edHostIP"
+		android:id="@+id/buttonExit"
+		/>
+
+</RelativeLayout>

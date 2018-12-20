@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AtoiHomeManager.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="uEdge" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2</Value>
+    </Setting>
+    <Setting Name="notes" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Here you can write any text. When you run the appbar next time, text will be retrieved.</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

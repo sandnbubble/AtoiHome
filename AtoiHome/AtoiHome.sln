@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtoiHome", "AtoiHome.csproj", "{32947F60-6F7B-44F4-8B94-F5569AECC7FD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A67DB6F1-A330-4D0D-A08D-83A4C8E805CC} = {A67DB6F1-A330-4D0D-A08D-83A4C8E805CC}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtoiHomeService", "..\AtoiHomeService\AtoiHomeService.csproj", "{970E1438-B313-4A33-8473-A02BEDF30112}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtoiHomeManager", "..\AtoiHomeManager\AtoiHomeManager.csproj", "{FACE7A4A-30A2-46CF-B931-0AF83A99DEBB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A67DB6F1-A330-4D0D-A08D-83A4C8E805CC} = {A67DB6F1-A330-4D0D-A08D-83A4C8E805CC}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtoiHomeServiceLib", "..\AtoiHomeServiceLib\AtoiHomeServiceLib.csproj", "{A67DB6F1-A330-4D0D-A08D-83A4C8E805CC}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AhoiHomeServiceSetup", "..\Setup\Setup.vdproj", "{22186F85-2234-4259-A391-C2B84AB79F6A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32947F60-6F7B-44F4-8B94-F5569AECC7FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32947F60-6F7B-44F4-8B94-F5569AECC7FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32947F60-6F7B-44F4-8B94-F5569AECC7FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32947F60-6F7B-44F4-8B94-F5569AECC7FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{970E1438-B313-4A33-8473-A02BEDF30112}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{970E1438-B313-4A33-8473-A02BEDF30112}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{970E1438-B313-4A33-8473-A02BEDF30112}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{970E1438-B313-4A33-8473-A02BEDF30112}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FACE7A4A-30A2-46CF-B931-0AF83A99DEBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FACE7A4A-30A2-46CF-B931-0AF83A99DEBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FACE7A4A-30A2-46CF-B931-0AF83A99DEBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FACE7A4A-30A2-46CF-B931-0AF83A99DEBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A67DB6F1-A330-4D0D-A08D-83A4C8E805CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A67DB6F1-A330-4D0D-A08D-83A4C8E805CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A67DB6F1-A330-4D0D-A08D-83A4C8E805CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A67DB6F1-A330-4D0D-A08D-83A4C8E805CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22186F85-2234-4259-A391-C2B84AB79F6A}.Debug|Any CPU.ActiveCfg = Debug
+		{22186F85-2234-4259-A391-C2B84AB79F6A}.Release|Any CPU.ActiveCfg = Release
+		{22186F85-2234-4259-A391-C2B84AB79F6A}.Release|Any CPU.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {90A9BA45-5F41-4EF6-B8B6-B17139C1F6D7}
+	EndGlobalSection
+EndGlobal

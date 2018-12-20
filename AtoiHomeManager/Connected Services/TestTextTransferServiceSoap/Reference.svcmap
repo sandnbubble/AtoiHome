@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="c504befc-5eaa-40ba-b7a0-d2f53ea4a762" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost/test/TextTransfer" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="TextTransfer.xsd" MetadataType="Schema" ID="20c471ac-f519-44f7-bb37-33b347f89bcc" SourceId="1" SourceUrl="http://localhost/Test/TextTransfer?xsd=xsd0" />
+    <MetadataFile FileName="TextTransfer.disco" MetadataType="Disco" ID="224bd839-472b-4cff-aaa7-1faac6cb3ba2" SourceId="1" SourceUrl="http://localhost/Test/TextTransfer?disco" />
+    <MetadataFile FileName="TextTransfer.wsdl" MetadataType="Wsdl" ID="5b930f4d-6932-4a86-93f1-75861320594d" SourceId="1" SourceUrl="http://localhost/Test/TextTransfer?wsdl" />
+    <MetadataFile FileName="TextTransfer1.xsd" MetadataType="Schema" ID="300e9b1e-dbbe-4296-88ef-83487b14bd33" SourceId="1" SourceUrl="http://localhost/Test/TextTransfer?xsd=xsd2" />
+    <MetadataFile FileName="TextTransfer2.xsd" MetadataType="Schema" ID="d85eaa52-6210-4f02-a550-fd7d97e936cb" SourceId="1" SourceUrl="http://localhost/Test/TextTransfer?xsd=xsd1" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

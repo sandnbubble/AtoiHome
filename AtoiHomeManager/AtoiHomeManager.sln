@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtoiHomeManager", "AtoiHomeManager.csproj", "{FACE7A4A-30A2-46CF-B931-0AF83A99DEBB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FACE7A4A-30A2-46CF-B931-0AF83A99DEBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FACE7A4A-30A2-46CF-B931-0AF83A99DEBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FACE7A4A-30A2-46CF-B931-0AF83A99DEBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FACE7A4A-30A2-46CF-B931-0AF83A99DEBB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0EE8D2E3-23E9-450B-9D3F-EDFAAF72B25F}
+	EndGlobalSection
+EndGlobal
