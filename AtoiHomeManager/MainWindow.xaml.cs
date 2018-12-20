@@ -75,12 +75,29 @@ namespace AtoiHomeManager
                 try
                 {
                     if ((Application.Current as App).bConnected = ConnectToIPCService())
-                        _MainWindowViewModel.bConnectButtonEnable = false;
+                    {
+                        ((sender as Button).Content as Image).Source = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/connect.png"));
+                    }
+                        
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
+            }
+            else
+            {
+                try
+                {
+                    IPCNotify.Disconnect(new TextTransferEventArgs("atoi", MessageType.GET_DATA, "bye", null));
+                    (Application.Current as App).bConnected = false;
+                    ((sender as Button).Content as Image).Source = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/disconnect.png"));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
             }
         }
 
@@ -179,27 +196,35 @@ namespace AtoiHomeManager
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if ((Application.Current as App).bConnected)
+            try
             {
-                _MainWindowViewModel.bConnectButtonEnable = false;
-            }
-            else
-                _MainWindowViewModel.bConnectButtonEnable = true;
+                if ((Application.Current as App).bConnected)
+                    (buttonConnect.Content as Image).Source = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/connect.png"));
+                else
+                    (buttonConnect.Content as Image).Source = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/disconnect.png"));
+
 #if DEBUG
             this.Title += " - Debug";
 #else
-            this.Title += " - Release";
+                this.Title += " - Release";
 #endif
 
-            scrollViewer.ScrollChanged += OnScrollViewerScrollChanged;
-            scrollViewer.MouseLeftButtonUp += OnMouseLeftButtonUp;
-            scrollViewer.PreviewMouseLeftButtonUp += OnMouseLeftButtonUp;
-            
-            scrollViewer.PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
-            scrollViewer.MouseMove += OnMouseMove;
+                scrollViewer.ScrollChanged += OnScrollViewerScrollChanged;
+                scrollViewer.MouseLeftButtonUp += OnMouseLeftButtonUp;
+                scrollViewer.PreviewMouseLeftButtonUp += OnMouseLeftButtonUp;
 
-            slider.ValueChanged += OnSliderValueChanged;
+                scrollViewer.PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
+                scrollViewer.MouseMove += OnMouseMove;
+
+                slider.ValueChanged += OnSliderValueChanged;
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
+
 
         void OnMouseMove(object sender, MouseEventArgs e)
         {

@@ -281,6 +281,9 @@
     <Resource Include="Resources\Images\scrollview24.png" />
     <Resource Include="Resources\Images\zoomview24.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\Images\connect.png" />
+    <Resource Include="Resources\Images\disconnect.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

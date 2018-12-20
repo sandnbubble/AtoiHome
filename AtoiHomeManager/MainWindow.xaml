@@ -66,13 +66,16 @@
         <!--Content-->
         <Grid Grid.Row="1" HorizontalAlignment="left" Width="792">
             <Button x:Name="buttonConnect" ToolTip="Connect to service"  Margin="10,0,0,0" 
-                    Click="ButtonConnect_Click" IsEnabled="{Binding bConnectButtonEnable}">
-                <Rectangle Width="30" Height="30" 
-                     Fill="{Binding Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
-                    <Rectangle.OpacityMask>
-                        <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_connect}" />
-                    </Rectangle.OpacityMask>
-                </Rectangle>
+                    Click="ButtonConnect_Click">
+                <Button.Content>
+                    <Image Width="30" Height="30" Opacity="1">
+                        <Image.Source>
+                            <BitmapImage 
+                            UriSource="pack://application:,,,/atoihomemanager;component/Resources/Images/connect.png">
+                            </BitmapImage>
+                        </Image.Source>
+                    </Image>
+                </Button.Content>
             </Button>
 
             <Button x:Name="buttonDownloadImage" ToolTip="Draw selected image"  Margin="50,0,0,0" 
