@@ -124,4 +124,18 @@
     <value>OneClickShot (AtoiHomeService)</value>
     <comment>메인윈도우타이틀</comment>
   </data>
+  <data name="ScrollViewImagePath" xml:space="preserve">
+    <value>pack://application:,,,/AtoiHomeManager;component/resources/images/scrollview24.png</value>
+    <comment>buttonViewMode의 scrollViewMode Image icon 파일 경로</comment>
+  </data>
+  <data name="ZoomViewImagePath" xml:space="preserve">
+    <value>pack://application:,,,/AtoiHomeManager;component/resources/images/zoomview24.png</value>
+    <comment>buttonViewMode의 zoomViewMode Image icon 파일 경로</comment>
+  </data>
+  <data name="ConnectImagePath" xml:space="preserve">
+    <value>pack://application:,,,/AtoiHomeManager;component/resources/images/connect.png</value>
+  </data>
+  <data name="DisconnectImagePath" xml:space="preserve">
+    <value>pack://application:,,,/AtoiHomeManager;component/resources/images/disconnect.png</value>
+  </data>
 </root>

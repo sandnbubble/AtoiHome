@@ -76,7 +76,7 @@ namespace AtoiHomeManager
                 {
                     if ((Application.Current as App).bConnected = ConnectToIPCService())
                     {
-                        ((sender as Button).Content as Image).Source = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/connect.png"));
+                        ((sender as Button).Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ConnectImagePath));
                     }
                         
                 }
@@ -91,7 +91,7 @@ namespace AtoiHomeManager
                 {
                     IPCNotify.Disconnect(new TextTransferEventArgs("atoi", MessageType.GET_DATA, "bye", null));
                     (Application.Current as App).bConnected = false;
-                    ((sender as Button).Content as Image).Source = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/disconnect.png"));
+                    ((sender as Button).Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.DisconnectImagePath));
                 }
                 catch (Exception ex)
                 {
@@ -134,7 +134,7 @@ namespace AtoiHomeManager
                         return;
                     bZoomView = true;
                     scrollViewer.PreviewMouseWheel += OnPreviewMouseWheel;
-                    (buttonViewMode.Content as Image).Source = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/zoomview24.png"));
+                    (buttonViewMode.Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ZoomViewImagePath));
 
                 }
                 else
@@ -143,7 +143,7 @@ namespace AtoiHomeManager
                         return;
                     bZoomView = false;
                     scrollViewer.PreviewMouseWheel -= OnPreviewMouseWheel;
-                    (buttonViewMode.Content as Image).Source = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/scrollview24.png"));
+                    (buttonViewMode.Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ScrollViewImagePath));
                 }
             }
             catch (Exception ex)
@@ -199,9 +199,18 @@ namespace AtoiHomeManager
             try
             {
                 if ((Application.Current as App).bConnected)
-                    (buttonConnect.Content as Image).Source = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/connect.png"));
+                    (buttonConnect.Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ConnectImagePath));
                 else
-                    (buttonConnect.Content as Image).Source = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/disconnect.png"));
+                    (buttonConnect.Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.DisconnectImagePath));
+                if (secondaryScreen != null)
+                {
+                    this.Left = (int)SystemParameters.PrimaryScreenWidth + GetWorkingArea().Width - ActualWidth;
+                }
+                else
+                {
+                    this.Left = (int)SystemParameters.PrimaryScreenWidth - ActualWidth;
+                }
+                    
 
 #if DEBUG
             this.Title += " - Debug";
@@ -296,8 +305,10 @@ namespace AtoiHomeManager
                 {
                     if (lastCenterPositionOnTarget.HasValue)
                     {
-                        var centerOfViewport = new Point(scrollViewer.ViewportWidth / 2, scrollViewer.ViewportHeight / 2);
-                        Point centerOfTargetNow = scrollViewer.TranslatePoint(centerOfViewport, gridImage);
+                        var centerOfViewport = new Point(scrollViewer.ViewportWidth / 2,
+                                                         scrollViewer.ViewportHeight / 2);
+                        Point centerOfTargetNow =
+                              scrollViewer.TranslatePoint(centerOfViewport, gridImage);
 
                         targetBefore = lastCenterPositionOnTarget;
                         targetNow = centerOfTargetNow;
@@ -319,8 +330,10 @@ namespace AtoiHomeManager
                     double multiplicatorX = e.ExtentWidth / gridImage.Width;
                     double multiplicatorY = e.ExtentHeight / gridImage.Height;
 
-                    double newOffsetX = scrollViewer.HorizontalOffset - dXInTargetPixels * multiplicatorX;
-                    double newOffsetY = scrollViewer.VerticalOffset - dYInTargetPixels * multiplicatorY;
+                    double newOffsetX = scrollViewer.HorizontalOffset -
+                                        dXInTargetPixels * multiplicatorX;
+                    double newOffsetY = scrollViewer.VerticalOffset -
+                                        dYInTargetPixels * multiplicatorY;
 
                     if (double.IsNaN(newOffsetX) || double.IsNaN(newOffsetY))
                     {
@@ -332,7 +345,6 @@ namespace AtoiHomeManager
                 }
             }
         }
-
         public static bool ConnectToIPCService()
         {
             try
@@ -371,8 +383,9 @@ namespace AtoiHomeManager
                     Application.Current.Shutdown();
                 }
 #endif
-            UnregisterBar();
-
+#if APPBAR
+                UnregisterBar();
+#endif
             }
             catch (Exception ex)
             {
@@ -399,24 +412,19 @@ namespace AtoiHomeManager
                 try
                 {
                     scrollViewer.PreviewMouseWheel += OnPreviewMouseWheel;
-                    Button btn = (Button)sender;
-                    var resource = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/zoomview24.png"));
-                    (btn.Content as Image).Source = resource;
+                    ((sender as Button).Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ZoomViewImagePath));
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message.ToString());
                 }
-
             }
             else
             {
                 try
                 {
                     scrollViewer.PreviewMouseWheel -= OnPreviewMouseWheel;
-                    Button btn = (Button)sender;
-                    var resource = new BitmapImage(new Uri("pack://application:,,,/AtoiHomeManager;component/resources/images/scrollview24.png"));
-                    (btn.Content as Image).Source = resource;
+                    ((sender as Button).Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ScrollViewImagePath));
                 }
                 catch (Exception ex)
                 {

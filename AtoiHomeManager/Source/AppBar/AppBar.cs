@@ -261,18 +261,16 @@ namespace AtoiHomeManager
         {
             base.OnSourceInitialized(e);
 
-#if DEBUG
-            return;
-#else 
+#if _APPBAR
             rectWorkingArea = GetWorkingArea();
             IntPtr hwnd = new WindowInteropHelper(this).Handle;
             HwndSource source = HwndSource.FromHwnd(hwnd);
             source.AddHook(new HwndSourceHook(WndProc));
-
             ExtendGlass();
             RegisterBar();
 #endif
         }
+
         public Rect GetWorkingArea()
         {
             if (secondaryScreen == null)

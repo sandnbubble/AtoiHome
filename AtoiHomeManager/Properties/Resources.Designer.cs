@@ -61,6 +61,24 @@ namespace AtoiHomeManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to pack://application:,,,/AtoiHomeManager;component/resources/images/connect.png.
+        /// </summary>
+        internal static string ConnectImagePath {
+            get {
+                return ResourceManager.GetString("ConnectImagePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to pack://application:,,,/AtoiHomeManager;component/resources/images/disconnect.png.
+        /// </summary>
+        internal static string DisconnectImagePath {
+            get {
+                return ResourceManager.GetString("DisconnectImagePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 2.
         /// </summary>
         internal static string eEdge {
@@ -70,11 +88,29 @@ namespace AtoiHomeManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to pack://application:,,,/AtoiHomeManager;component/resources/images/scrollview24.png.
+        /// </summary>
+        internal static string ScrollViewImagePath {
+            get {
+                return ResourceManager.GetString("ScrollViewImagePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OneClickShot (AtoiHomeService).
         /// </summary>
         internal static string StrMainWindowTitle {
             get {
                 return ResourceManager.GetString("StrMainWindowTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to pack://application:,,,/AtoiHomeManager;component/resources/images/zoomview24.png.
+        /// </summary>
+        internal static string ZoomViewImagePath {
+            get {
+                return ResourceManager.GetString("ZoomViewImagePath", resourceCulture);
             }
         }
     }
