@@ -28,18 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.eventLog1 = new System.Diagnostics.EventLog();
-            ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).BeginInit();
+            this.eventLogForWin = new System.Diagnostics.EventLog();
+            ((System.ComponentModel.ISupportInitialize)(this.eventLogForWin)).BeginInit();
             // 
             // TextTransferService
             // 
-            this.ServiceName = "Service1";
-            ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).EndInit();
+            this.ServiceName = "TextTransferService";
+            ((System.ComponentModel.ISupportInitialize)(this.eventLogForWin)).EndInit();
 
         }
 
         #endregion
 
-        private System.Diagnostics.EventLog eventLog1;
+        private System.Diagnostics.EventLog eventLogForWin;
     }
 }

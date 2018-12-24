@@ -7,11 +7,17 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AtoiHome
+namespace AtoiHomeServiceLib.Source.Utility
 {
     public class DNSInfo
     {
-        public static IPAddress GetMyExternalIpAddress()
+        /// <summary>
+        /// nslookup을 프로세스로 실행시키고 표준출력을 redirection해서 공인IP를 얻어오는 루틴인데
+        /// "권한 없는 응답:" 라인이 원인은 알 수 없지만 redirection이 안되고 service console에 출력됨
+        /// 다른 방법을 찾아야할듯
+        /// </summary>
+        /// <returns></returns>
+        public static IPAddress GetPublicIP()
         {
 
             var dnsQuery = new ProcessStartInfo("nslookup", "myip.opendns.com. resolver1.opendns.com")
@@ -44,14 +50,12 @@ namespace AtoiHome
             {
                 if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
                 {
-                    Program.log.DebugFormat(ni.Name);
                     foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
                     {
                         if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                         {
                             if (ni.NetworkInterfaceType == nicType)
                             {
-                                Program.log.DebugFormat(ip.Address.ToString());
                                 return ip.Address;
                             }
                         }

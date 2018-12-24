@@ -7,7 +7,7 @@
     <ProjectGuid>{32947F60-6F7B-44F4-8B94-F5569AECC7FD}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>AtoiHome</RootNamespace>
-    <AssemblyName>TextTransferService</AssemblyName>
+    <AssemblyName>AtoiHome</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -76,7 +76,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\Utility\DNSInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Source\Main\ServiceHostManager.cs" />
@@ -100,6 +99,8 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Source\Utility\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

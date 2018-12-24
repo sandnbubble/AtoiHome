@@ -10,11 +10,18 @@ namespace AtoiHomeService
         static void Main()
         {
             ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[]
+            try
             {
+                ServicesToRun = new ServiceBase[]
+                {
                 new TextTransferService()
-            };
-            ServiceBase.Run(ServicesToRun);
+                };
+                ServiceBase.Run(ServicesToRun);
+            }
+            catch (System.Exception ex)
+            {
+                ;
+            }
         }
     }
 }

@@ -19,6 +19,26 @@ namespace AtoiHomeServiceLib
         DISCONNECTED_CLIENT,
     }
 
+    [DataContract]
+    public class CustomerServiceFault
+    {
+        [DataMember]
+        public string ErrorMessage { get; set; }
+
+        [DataMember]
+        public IpInfo ipInfo { get; set; }
+    }
+
+    [DataContract]
+    public class IpInfo
+    {
+        [DataMember]
+        public string strPublicIP { get; set; }
+
+        [DataMember]
+        public string strLocalIP { get; set; }
+    }
+
     [ServiceContract(Namespace = "http://www.atoihome.com", SessionMode = SessionMode.Required, CallbackContract = typeof(ICallbackService))]
     public interface INotifyService
     {
@@ -28,8 +48,12 @@ namespace AtoiHomeServiceLib
         [OperationContract(IsOneWay = true)]
         void Disconnect(TextTransferEventArgs e);
         
-            [OperationContract(IsOneWay = true)]
+        [OperationContract(IsOneWay = true)]
         void SendMessage(TextTransferEventArgs e);
+
+        [OperationContract]
+        [FaultContractAttribute(typeof(CustomerServiceFault))]
+        IpInfo GetHostPublicIP();
     }
 
     public interface ICallbackService

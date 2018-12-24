@@ -43,21 +43,29 @@ namespace AtoiHomeService
 
         public TextTransferService()
         {
-            InitializeComponent();
-            eventLog1 = new System.Diagnostics.EventLog();
-            if (!System.Diagnostics.EventLog.SourceExists("MySource"))
+            try
             {
-                System.Diagnostics.EventLog.CreateEventSource(
-                    "TrextTransferService", "DebugLog");
+                InitializeComponent();
+
+                eventLogForWin = new System.Diagnostics.EventLog();
+                if (!System.Diagnostics.EventLog.SourceExists("AtoiHomeServiceSource"))
+                {
+                    System.Diagnostics.EventLog.CreateEventSource(
+                        "AtoiHomeServiceSource", "AtoiHomeServiceLog");
+                }
+                eventLogForWin.Source = "AtoiHomeServiceSource";
+                eventLogForWin.Log = "AtoiHomeServiceLog";
             }
-            eventLog1.Source = "TrextTransferService";
-            eventLog1.Log = "DebugLog";
+            catch (Exception ex)
+            {
+                log.DebugFormat(ex.Message.ToString());
+            }
         }
 
         protected override void OnStart(string[] args)
         {
             log.Info("Started - AtoiHomeService");
-            eventLog1.WriteEntry("In OnStart");
+            eventLogForWin.WriteEntry("In OnStart");
             try
             {
                 // Update the service state to Start Pending.
@@ -75,7 +83,7 @@ namespace AtoiHomeService
             catch (Exception e)
             {
                 TextTransferServiceHostManager.StopService();
-                eventLog1.WriteEntry(e.Message);
+                eventLogForWin.WriteEntry(e.Message);
                 log.Info("Error :" + e.Message);
             }
         }
@@ -83,7 +91,7 @@ namespace AtoiHomeService
         protected override void OnStop()
         {
             log.Info("Stoped - AtoiHomeService");
-            eventLog1.WriteEntry("In OnStop");
+            eventLogForWin.WriteEntry("In OnStop");
 
             // Update the service state to Start Pending.
             ServiceStatus serviceStatus = new ServiceStatus();

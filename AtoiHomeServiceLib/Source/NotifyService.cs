@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 
 namespace AtoiHomeServiceLib
 {
+
+
     public class ClientInfo
     {
         public string UserId { get; set; }
@@ -50,6 +54,25 @@ namespace AtoiHomeServiceLib
             {
                 Clients.Remove(Client);
                 onTextTransferEvent(this, new TextTransferEventArgs("atoi", MessageType.DISCONNECTED_CLIENT, "I'm a atoi, bye!!!", null));
+            }
+        }
+
+        public IpInfo GetHostPublicIP()
+        {
+            try
+            {
+                IpInfo ipInfo = new IpInfo();
+                ipInfo.strPublicIP = Source.Utility.DNSInfo.GetPublicIP().ToString();
+                ipInfo.strLocalIP = Source.Utility.DNSInfo.GetLocalIP(NetworkInterfaceType.Ethernet).ToString();
+                return ipInfo;
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<CustomerServiceFault>(
+                    new CustomerServiceFault()
+                    {
+                        ErrorMessage = ex.Message.ToString()
+                    });
             }
         }
 

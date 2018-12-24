@@ -45,6 +45,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
@@ -63,6 +66,7 @@
     <Compile Include="Source\ITextTransfer.cs" />
     <Compile Include="Source\NotifyService.cs" />
     <Compile Include="Source\TextTransfer.cs" />
+    <Compile Include="Source\Utility\DNSInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

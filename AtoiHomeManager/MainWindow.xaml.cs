@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 using System.Windows.Markup;
 using System.Windows.Data;
 using System.Globalization;
+using System.Net.Mail;
+using System.Net;
 
 namespace AtoiHomeManager
 {
@@ -45,8 +47,18 @@ namespace AtoiHomeManager
                         TextTransferEventArgs disconnect = new TextTransferEventArgs("atoi", MessageType.NOTIFYSERVICE_CLOSING, "Bye", null);
                         // 알림서브스에서 중지 메시지를 받으면 클라이언트에서 연결을 끊겠다는 메시지를 반송하여 서비스 종료를 명확하게 한다.
                         // 이를 하지 않으면 서비스 종료가 지연됨
-                        IPCNotify.Disconnect(disconnect);
-                        _MainWindowViewModel.bConnectButtonEnable = true;
+                        try
+                        {
+                            IPCNotify.Disconnect(new TextTransferEventArgs("atoi", MessageType.GET_DATA, "bye", null));
+                            (Application.Current as App).bConnected = false;
+                            (buttonConnect.Content as StackPanel).FindChild<Image>("buttonConnectImage").Source = new BitmapImage(new Uri(Properties.Resources.DisconnectImagePath));
+                            (buttonConnect.Content as StackPanel).FindChild<TextBlock>("tbConnect").Text = "Disconnected";
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
+
                         break;
                     default:
                         break;
@@ -76,7 +88,9 @@ namespace AtoiHomeManager
                 {
                     if ((Application.Current as App).bConnected = ConnectToIPCService())
                     {
-                        ((sender as Button).Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ConnectImagePath));
+
+                        ((sender as Button).Content as StackPanel).FindChild<Image>("buttonConnectImage").Source = new BitmapImage(new Uri(Properties.Resources.ConnectImagePath));
+                        ((sender as Button).Content as StackPanel).FindChild<TextBlock>("tbConnect").Text = "Connected";
                     }
                         
                 }
@@ -91,7 +105,8 @@ namespace AtoiHomeManager
                 {
                     IPCNotify.Disconnect(new TextTransferEventArgs("atoi", MessageType.GET_DATA, "bye", null));
                     (Application.Current as App).bConnected = false;
-                    ((sender as Button).Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.DisconnectImagePath));
+                    ((sender as Button).Content as StackPanel).FindChild<Image>("buttonConnectImage").Source = new BitmapImage(new Uri(Properties.Resources.DisconnectImagePath));
+                    ((sender as Button).Content as StackPanel).FindChild<TextBlock>("tbConnect").Text = "Disconnected";
                 }
                 catch (Exception ex)
                 {
@@ -134,7 +149,9 @@ namespace AtoiHomeManager
                         return;
                     bZoomView = true;
                     scrollViewer.PreviewMouseWheel += OnPreviewMouseWheel;
-                    (buttonViewMode.Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ZoomViewImagePath));
+                    (buttonViewMode.Content as StackPanel).FindChild<Image>("buttonViewModeImage").Source = new BitmapImage(new Uri(Properties.Resources.ZoomViewImagePath));
+                    (buttonViewMode.Content as StackPanel).FindChild<TextBlock>("tbViewMode").Text = "ZoomView";
+
 
                 }
                 else
@@ -143,7 +160,8 @@ namespace AtoiHomeManager
                         return;
                     bZoomView = false;
                     scrollViewer.PreviewMouseWheel -= OnPreviewMouseWheel;
-                    (buttonViewMode.Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ScrollViewImagePath));
+                    (buttonViewMode.Content as StackPanel).FindChild<Image>("buttonViewModeImage").Source = new BitmapImage(new Uri(Properties.Resources.ScrollViewImagePath));
+                    (buttonViewMode.Content as StackPanel).FindChild<TextBlock>("tbViewMode").Text = "ScrollView";
                 }
             }
             catch (Exception ex)
@@ -199,9 +217,16 @@ namespace AtoiHomeManager
             try
             {
                 if ((Application.Current as App).bConnected)
-                    (buttonConnect.Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ConnectImagePath));
+                {
+                    (buttonConnect.Content as StackPanel).FindChild<Image>("buttonConnectImage").Source = new BitmapImage(new Uri(Properties.Resources.ConnectImagePath));
+                    (buttonConnect.Content as StackPanel).FindChild<TextBlock>("tbConnect").Text = "Connected";
+                }
                 else
-                    (buttonConnect.Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.DisconnectImagePath));
+                {
+                    (buttonConnect.Content as StackPanel).FindChild<Image>("buttonConnectImage").Source = new BitmapImage(new Uri(Properties.Resources.DisconnectImagePath));
+                    (buttonConnect.Content as StackPanel).FindChild<TextBlock>("tbConnect").Text = "Disconnected";
+                }
+
                 if (secondaryScreen != null)
                 {
                     this.Left = (int)SystemParameters.PrimaryScreenWidth + GetWorkingArea().Width - ActualWidth;
@@ -210,10 +235,10 @@ namespace AtoiHomeManager
                 {
                     this.Left = (int)SystemParameters.PrimaryScreenWidth - ActualWidth;
                 }
-                    
+
 
 #if DEBUG
-            this.Title += " - Debug";
+                this.Title += " - Debug";
 #else
                 this.Title += " - Release";
 #endif
@@ -412,7 +437,8 @@ namespace AtoiHomeManager
                 try
                 {
                     scrollViewer.PreviewMouseWheel += OnPreviewMouseWheel;
-                    ((sender as Button).Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ZoomViewImagePath));
+                    ((sender as Button).Content as StackPanel).FindChild<Image>("buttonViewModeImage").Source = new BitmapImage(new Uri(Properties.Resources.ZoomViewImagePath));
+                    (buttonViewMode.Content as StackPanel).FindChild<TextBlock>("tbViewMode").Text = "ZoomView";
                 }
                 catch (Exception ex)
                 {
@@ -424,11 +450,29 @@ namespace AtoiHomeManager
                 try
                 {
                     scrollViewer.PreviewMouseWheel -= OnPreviewMouseWheel;
-                    ((sender as Button).Content as Image).Source = new BitmapImage(new Uri(Properties.Resources.ScrollViewImagePath));
+                    ((sender as Button).Content as StackPanel).FindChild<Image>("buttonViewModeImage").Source = new BitmapImage(new Uri(Properties.Resources.ScrollViewImagePath));
+                    (buttonViewMode.Content as StackPanel).FindChild<TextBlock>("tbViewMode").Text = "ScrollView";
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message.ToString());
+                }
+            }
+        }
+
+        private void ButtonGetPublicIP_Click(object sender, RoutedEventArgs e)
+        {
+            if ((Application.Current as App).bConnected == true)
+            {
+                try
+                {
+                    IpInfo ipInfo;
+                    ipInfo = IPCNotify.GetHostPublicIP();
+                    MessageBox.Show(this, "Public IPAddress : " + ipInfo.strPublicIP + "\r\n" + "Local IPAddress  : " + ipInfo.strLocalIP, "AtoiHomeManager");
+                }
+                catch (FaultException<CustomerServiceFault> fault)
+                {
+                    MessageBox.Show($"Fault received: {fault.Detail.ErrorMessage}");
                 }
             }
         }

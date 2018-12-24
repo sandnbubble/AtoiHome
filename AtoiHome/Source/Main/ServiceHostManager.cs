@@ -32,14 +32,14 @@ namespace AtoiHome
                 switch (iNetworkType)
                 {
                     case EnumNetworkType.WAN_NETWORK:
-                        strServiceIP = DNSInfo.GetMyExternalIpAddress().ToString();
+                        strServiceIP = AtoiHomeServiceLib.Source.Utility.DNSInfo.GetPublicIP().ToString();
                         break;
                     case EnumNetworkType.LAN_NETWORK_ETHERNET:
                     case EnumNetworkType.LAN_NETWORK_WIRELESS:
                         if (iNetworkType == EnumNetworkType.LAN_NETWORK_ETHERNET)
-                            strServiceIP = DNSInfo.GetLocalIP(NetworkInterfaceType.Ethernet).ToString();
+                            strServiceIP = AtoiHomeServiceLib.Source.Utility.DNSInfo.GetLocalIP(NetworkInterfaceType.Ethernet).ToString();
                         else
-                            strServiceIP = DNSInfo.GetLocalIP(NetworkInterfaceType.Wireless80211).ToString();
+                            strServiceIP = AtoiHomeServiceLib.Source.Utility.DNSInfo.GetLocalIP(NetworkInterfaceType.Wireless80211).ToString();
                         break;
                     default:
                         strServiceIP = "LOCALHOST";
