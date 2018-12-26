@@ -20,14 +20,14 @@ namespace AtoiHome
 
         static void Main(string[] args)
         {
-            ServiceHostManager TextTransferServiceHostManager = new ServiceHostManager();
+            ServiceHostManager OneClickShotServiceHostManager = new ServiceHostManager();
 
             log.Info("Start WCF atoihome service!!");
             try
             {
-                TextTransferServiceHostManager.StartService();
+                OneClickShotServiceHostManager.StartService();
                 Console.ReadKey();
-                TextTransferServiceHostManager.StopService();
+                OneClickShotServiceHostManager.StopService();
 
             }
             catch (Exception e)

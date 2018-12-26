@@ -4,7 +4,7 @@ namespace AtoiHomeManager
 {
     // Application thread publish this event to send message for views
     public delegate void ModelContextEvent(object sender, ModelContextArgs e);
-    public delegate void TextTransferEvent(object sender, TextTransferEventArgs e);
+    public delegate void OneClickShotEvent(object sender, OneClickShotEventArgs e);
 
     public class ModelContextArgs
     {

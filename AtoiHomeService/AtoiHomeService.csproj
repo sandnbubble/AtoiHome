@@ -64,11 +64,11 @@
     <Compile Include="ProjectInstaller.Designer.cs">
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </Compile>
-    <Compile Include="TextTransferService.cs">
+    <Compile Include="OnClickShotService.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="TextTransferService.Designer.cs">
-      <DependentUpon>TextTransferService.cs</DependentUpon>
+    <Compile Include="OnClickShotService.Designer.cs">
+      <DependentUpon>OnClickShotService.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -82,8 +82,8 @@
     <EmbeddedResource Include="ProjectInstaller.resx">
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TextTransferService.resx">
-      <DependentUpon>TextTransferService.cs</DependentUpon>
+    <EmbeddedResource Include="OnClickShotService.resx">
+      <DependentUpon>OnClickShotService.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

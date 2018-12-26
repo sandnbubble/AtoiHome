@@ -96,6 +96,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -115,12 +116,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Connected Services\TestTextTransferServiceSoap\Reference.cs">
+    <Compile Include="Connected Services\OneClickShotServiceSoap\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="Connected Services\TextTransferServiceSoap\Reference.cs">
+    <Compile Include="Connected Services\TestOneClickShotServiceSoap\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -188,24 +189,24 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Connected Services\TestTextTransferServiceSoap\TextTransfer.wsdl" />
-    <None Include="Connected Services\TestTextTransferServiceSoap\TextTransfer.xsd">
+    <None Include="Connected Services\OneClickShotServiceSoap\OneClickShot.wsdl" />
+    <None Include="Connected Services\OneClickShotServiceSoap\OneClickShot.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Connected Services\TestTextTransferServiceSoap\TextTransfer1.xsd">
+    <None Include="Connected Services\OneClickShotServiceSoap\OneClickShot1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Connected Services\TestTextTransferServiceSoap\TextTransfer2.xsd">
+    <None Include="Connected Services\OneClickShotServiceSoap\OneClickShot2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Connected Services\TextTransferServiceSoap\TextTransfer.wsdl" />
-    <None Include="Connected Services\TextTransferServiceSoap\TextTransfer.xsd">
+    <None Include="Connected Services\TestOneClickShotServiceSoap\OneClickShot.wsdl" />
+    <None Include="Connected Services\TestOneClickShotServiceSoap\OneClickShot.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Connected Services\TextTransferServiceSoap\TextTransfer1.xsd">
+    <None Include="Connected Services\TestOneClickShotServiceSoap\OneClickShot1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Connected Services\TextTransferServiceSoap\TextTransfer2.xsd">
+    <None Include="Connected Services\TestOneClickShotServiceSoap\OneClickShot2.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
@@ -222,10 +223,6 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Connected Services\TestTextTransferServiceSoap\" />
-    <WCFMetadataStorage Include="Connected Services\TextTransferServiceSoap\" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.6.1 %28x86 and x64%29</ProductName>
@@ -236,36 +233,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\TextTransferServiceSoap\TextTransfer.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\TextTransferServiceSoap\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\TextTransferServiceSoap\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\TextTransferServiceSoap\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\TestTextTransferServiceSoap\TextTransfer.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\TestTextTransferServiceSoap\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\TestTextTransferServiceSoap\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\TestTextTransferServiceSoap\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\Tray.ico" />
@@ -286,6 +253,44 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\ip.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\StartedService.png" />
+    <Resource Include="Resources\Images\StopedService.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Connected Services\OneClickShotServiceSoap\" />
+    <WCFMetadataStorage Include="Connected Services\TestOneClickShotServiceSoap\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\TestOneClickShotServiceSoap\OneClickShot.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\TestOneClickShotServiceSoap\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\TestOneClickShotServiceSoap\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\TestOneClickShotServiceSoap\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\OneClickShotServiceSoap\OneClickShot.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\OneClickShotServiceSoap\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\OneClickShotServiceSoap\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\OneClickShotServiceSoap\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

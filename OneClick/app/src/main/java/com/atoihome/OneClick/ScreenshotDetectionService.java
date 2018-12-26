@@ -2,6 +2,7 @@ package com.atoihome.OneClick;
 
 import android.Manifest;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
@@ -14,6 +15,11 @@ import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import static android.app.PendingIntent.getActivity;
 import static android.widget.Toast.LENGTH_SHORT;
@@ -29,7 +35,8 @@ public class ScreenshotDetectionService extends Service {
     // 시스템이 MainActivity를 kill하면 이 클라스의 정적으로 선언된 mHostServiceURL의 초기값을
     // 사용한다는 것이다. 이해가 안됨
     // 차라리 스토리지에서 값을 얻어 오는 것이 안전한 것으로 보인다. 수정해야함.
-    private static String mHostServiceURL="http://211.212.200.192/TextTransfer/WEB";
+    private static String mHostServiceURL="http://211.212.200.192/OneClickShot/WEB";
+    private static String mServiceName="/OneClickShot/WEB";
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
     // Registered callbacks
@@ -108,7 +115,22 @@ public class ScreenshotDetectionService extends Service {
 //        player = MediaPlayer.create(this, R.raw.kalimba);
 //        player.setLooping(true);
 //        player.start();
-        return super.onStartCommand(intent, flags, startId);
+            try {
+                FileInputStream InputSettings = openFileInput("Settings");
+                if (InputSettings != null) {
+                    int nLength = InputSettings.available();
+                    byte[] ReadData = new byte[nLength];
+                    InputSettings.read (ReadData, 0, nLength);
+                    mHostServiceURL = new String(ReadData, 0, nLength);
+                    mHostServiceURL += mServiceName;
+                    InputSettings.close();
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return super.onStartCommand(intent, flags, startId);
     }
 
     @Override

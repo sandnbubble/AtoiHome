@@ -24,6 +24,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 import static android.widget.Toast.LENGTH_SHORT;
@@ -31,8 +35,8 @@ import static android.widget.Toast.LENGTH_SHORT;
 public class MainActivity extends AppCompatActivity  implements View.OnClickListener, ServiceCallbacks {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    public String strHostURL= "http://211.212.200.192";
-    public String strServiceURL = "/TextTransfer/WEB";
+    public String strHostURL= "http://";
+    public String strServiceURL = "/OneClickShot/WEB";
 
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE_PERMISSION = 3009;
     private BackPressCloseHandler backPressCloseHandler;
@@ -72,6 +76,28 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        try {
+            FileInputStream InputSettings = openFileInput("Settings");
+            if (InputSettings != null) {
+                int nLength = InputSettings.available();
+                byte[] ReadData = new byte[nLength];
+                InputSettings.read (ReadData, 0, nLength);
+                strHostURL = new String(ReadData, 0, nLength);
+                InputSettings.close();
+            }
+            else
+            {
+                FileOutputStream fos = openFileOutput("Settings", Context.MODE_PRIVATE);
+                fos.write(strHostURL.getBytes());
+                fos.close();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         checkReadExternalStoragePermission();
         setContentView(R.layout.activity_main);
@@ -98,7 +124,18 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                     bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
                 }
                 else
+                {
                     sdService.setHostServiceURL(strHostURL+strServiceURL);
+                    try {
+                            FileOutputStream fos = openFileOutput("Settings", Context.MODE_PRIVATE);
+                            fos.write(strHostURL.getBytes());
+                            fos.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 

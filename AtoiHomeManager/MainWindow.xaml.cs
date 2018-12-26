@@ -17,6 +17,7 @@ using System.Windows.Data;
 using System.Globalization;
 using System.Net.Mail;
 using System.Net;
+using System.ServiceProcess;
 
 namespace AtoiHomeManager
 {
@@ -44,15 +45,15 @@ namespace AtoiHomeManager
                         //DrawImageFromFile(e.Message);
                         break;
                     case MessageType.NOTIFYSERVICE_CLOSING:
-                        TextTransferEventArgs disconnect = new TextTransferEventArgs("atoi", MessageType.NOTIFYSERVICE_CLOSING, "Bye", null);
+                        OneClickShotEventArgs disconnect = new OneClickShotEventArgs("atoi", null, MessageType.NOTIFYSERVICE_CLOSING, "Bye", null);
                         // 알림서브스에서 중지 메시지를 받으면 클라이언트에서 연결을 끊겠다는 메시지를 반송하여 서비스 종료를 명확하게 한다.
                         // 이를 하지 않으면 서비스 종료가 지연됨
                         try
                         {
-                            IPCNotify.Disconnect(new TextTransferEventArgs("atoi", MessageType.GET_DATA, "bye", null));
+                            IPCNotify.Disconnect(new OneClickShotEventArgs("atoi", null, MessageType.GET_DATA, "bye", null));
                             (Application.Current as App).bConnected = false;
-                            (buttonConnect.Content as StackPanel).FindChild<Image>("buttonConnectImage").Source = new BitmapImage(new Uri(Properties.Resources.DisconnectImagePath));
-                            (buttonConnect.Content as StackPanel).FindChild<TextBlock>("tbConnect").Text = "Disconnected";
+                            (buttonServiceControl.Content as StackPanel).FindChild<Image>("buttonServiceControlImage").Source = new BitmapImage(new Uri(Properties.Resources.StopedServiceImagePath));
+                            (buttonServiceControl.Content as StackPanel).FindChild<TextBlock>("tbServiceControl").Text = "Stoped Service";
                         }
                         catch (Exception ex)
                         {
@@ -80,17 +81,20 @@ namespace AtoiHomeManager
             DataContext = _MainWindowViewModel;
         }
 
-        private void ButtonConnect_Click(object sender, RoutedEventArgs e)
+
+        private void ButtonServiceControl_Click(object sender, RoutedEventArgs e)
         {
             if ((Application.Current as App).bConnected == false)
             {
                 try
                 {
+                    if (GetServiceStatus("OneClickShot") == false)
+                        StartService("OneClickShot", 10000);
                     if ((Application.Current as App).bConnected = ConnectToIPCService())
                     {
 
-                        ((sender as Button).Content as StackPanel).FindChild<Image>("buttonConnectImage").Source = new BitmapImage(new Uri(Properties.Resources.ConnectImagePath));
-                        ((sender as Button).Content as StackPanel).FindChild<TextBlock>("tbConnect").Text = "Connected";
+                        ((sender as Button).Content as StackPanel).FindChild<Image>("buttonServiceControlImage").Source = new BitmapImage(new Uri(Properties.Resources.StartedServiceImagePath));
+                        ((sender as Button).Content as StackPanel).FindChild<TextBlock>("tbServiceControl").Text = "Started Service";
                     }
                         
                 }
@@ -103,10 +107,11 @@ namespace AtoiHomeManager
             {
                 try
                 {
-                    IPCNotify.Disconnect(new TextTransferEventArgs("atoi", MessageType.GET_DATA, "bye", null));
+                    IPCNotify.Disconnect(new OneClickShotEventArgs("atoi", null, MessageType.GET_DATA, "bye", null));
+                    StopService("AtoiHomeService", 10000);
                     (Application.Current as App).bConnected = false;
-                    ((sender as Button).Content as StackPanel).FindChild<Image>("buttonConnectImage").Source = new BitmapImage(new Uri(Properties.Resources.DisconnectImagePath));
-                    ((sender as Button).Content as StackPanel).FindChild<TextBlock>("tbConnect").Text = "Disconnected";
+                    ((sender as Button).Content as StackPanel).FindChild<Image>("buttonServiceControlImage").Source = new BitmapImage(new Uri(Properties.Resources.StopedServiceImagePath));
+                    ((sender as Button).Content as StackPanel).FindChild<TextBlock>("tbServiceControl").Text = "Stoped Service";
                 }
                 catch (Exception ex)
                 {
@@ -175,9 +180,9 @@ namespace AtoiHomeManager
         {
             //creating the object of WCF service client       
 #if DEBUG
-            TestTextTransferServiceSoap.TextTransferSoapClient WCFClient = new TestTextTransferServiceSoap.TextTransferSoapClient();
+            TestOneClickShotServiceSoap.OneClickShotSoapClient WCFClient = new TestOneClickShotServiceSoap.OneClickShotSoapClient();
 #else
-            TextTransferServiceSoap.TextTransferSoapClient WCFClient = new TextTransferServiceSoap.TextTransferSoapClient();
+            OneClickShotServiceSoap.OneClickShotSoapClient WCFClient = new OneClickShotServiceSoap.OneClickShotSoapClient();
 #endif
             try
             {
@@ -218,13 +223,13 @@ namespace AtoiHomeManager
             {
                 if ((Application.Current as App).bConnected)
                 {
-                    (buttonConnect.Content as StackPanel).FindChild<Image>("buttonConnectImage").Source = new BitmapImage(new Uri(Properties.Resources.ConnectImagePath));
-                    (buttonConnect.Content as StackPanel).FindChild<TextBlock>("tbConnect").Text = "Connected";
+                    (buttonServiceControl.Content as StackPanel).FindChild<Image>("buttonServiceControlImage").Source = new BitmapImage(new Uri(Properties.Resources.StartedServiceImagePath));
+                    (buttonServiceControl.Content as StackPanel).FindChild<TextBlock>("tbServiceControl").Text = "Started Service";
                 }
                 else
                 {
-                    (buttonConnect.Content as StackPanel).FindChild<Image>("buttonConnectImage").Source = new BitmapImage(new Uri(Properties.Resources.DisconnectImagePath));
-                    (buttonConnect.Content as StackPanel).FindChild<TextBlock>("tbConnect").Text = "Disconnected";
+                    (buttonServiceControl.Content as StackPanel).FindChild<Image>("buttonServiceControlImage").Source = new BitmapImage(new Uri(Properties.Resources.StopedServiceImagePath));
+                    (buttonServiceControl.Content as StackPanel).FindChild<TextBlock>("tbServiceControl").Text = "Stoped Service";
                 }
 
                 if (secondaryScreen != null)
@@ -370,29 +375,36 @@ namespace AtoiHomeManager
                 }
             }
         }
+
         public static bool ConnectToIPCService()
         {
             try
             {
-                var callback = new App.NotifyCallback();
-                var context = new InstanceContext(callback);
-                NetNamedPipeBinding IPCBinding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.None);
-                IPCBinding.ReceiveTimeout = TimeSpan.MaxValue;
-                var pipeFactory =
-                     new DuplexChannelFactory<INotifyService>(context,
-                     IPCBinding,
-                new EndpointAddress(HostAddr));
-                IPCNotify = pipeFactory.CreateChannel();
+                if (GetServiceStatus("OneClickShot"))
+                {
+                    var callback = new App.NotifyCallback();
+                    var context = new InstanceContext(callback);
+                    NetNamedPipeBinding IPCBinding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.None);
+                    IPCBinding.ReceiveTimeout = TimeSpan.MaxValue;
+                    var pipeFactory = new DuplexChannelFactory<INotifyService>(context, IPCBinding, new EndpointAddress(HostAddr));
+                    IPCNotify = pipeFactory.CreateChannel();
 
-                TextTransferEventArgs e = new TextTransferEventArgs("atoi", MessageType.GET_DATA, "Hi", null);
-                IPCNotify.Connect(e);
-                return true;
-
+                    OneClickShotEventArgs e = new OneClickShotEventArgs("atoi", "gksrmf65!!", MessageType.GET_DATA, "Hi", null);
+                    if (IPCNotify.Connect(e))
+                        return true;
+                    else
+                    {
+                        IPCNotify.SendMessage(e);
+                        MessageBox.Show("Can not connect service");
+                        return false;
+                    }
+                }
+                else
+                    return false;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
-                return false;
+                throw ex;
             }
         }
 
@@ -404,7 +416,7 @@ namespace AtoiHomeManager
 #if DEBUG
                 if ((Application.Current as App).bConnected == true)
                 {
-                    IPCNotify.Disconnect(new TextTransferEventArgs("atoi", MessageType.GET_DATA, "bye", null));
+                    IPCNotify.Disconnect(new OneClickShotEventArgs("atoi", null, MessageType.GET_DATA, "bye", null));
                     Application.Current.Shutdown();
                 }
 #endif
@@ -476,5 +488,89 @@ namespace AtoiHomeManager
                 }
             }
         }
+
+        public static bool GetServiceStatus(string strServicename)
+        {
+            try
+            {
+                ServiceController[] services = ServiceController.GetServices();
+                foreach (ServiceController service in services)
+                {
+                    if (service.ServiceName == strServicename)
+                    {
+                        switch (service.Status)
+                        {
+                            case ServiceControllerStatus.Running:
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return false;
+        }
+
+        public static void StartService(string serviceName, int timeoutMilliseconds)
+        {
+            ServiceController service = new ServiceController(serviceName);
+            try
+            {
+                TimeSpan timeout = TimeSpan.FromMilliseconds(timeoutMilliseconds);
+
+                service.Start();
+                service.WaitForStatus(ServiceControllerStatus.Running, timeout);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public static void StopService(string serviceName, int timeoutMilliseconds)
+        {
+            ServiceController service = new ServiceController(serviceName);
+            try
+            {
+                TimeSpan timeout = TimeSpan.FromMilliseconds(timeoutMilliseconds);
+
+                service.Stop();
+                service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public static void RestartService(string serviceName, int timeoutMilliseconds)
+        {
+            ServiceController service = new ServiceController(serviceName);
+            try
+            {
+                int millisec1 = Environment.TickCount;
+                TimeSpan timeout = TimeSpan.FromMilliseconds(timeoutMilliseconds);
+
+                service.Stop();
+                service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
+
+                // count the rest of the timeout
+                int millisec2 = Environment.TickCount;
+                timeout = TimeSpan.FromMilliseconds(timeoutMilliseconds - (millisec2 - millisec1));
+
+                service.Start();
+                service.WaitForStatus(ServiceControllerStatus.Running, timeout);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
     }
 }

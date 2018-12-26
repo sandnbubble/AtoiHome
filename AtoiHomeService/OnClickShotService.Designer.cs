@@ -1,6 +1,6 @@
 ﻿namespace AtoiHomeService
 {
-    partial class TextTransferService
+    partial class OneClickShotService
     {
         /// <summary> 
         /// 필수 디자이너 변수입니다.
@@ -31,9 +31,9 @@
             this.eventLogForWin = new System.Diagnostics.EventLog();
             ((System.ComponentModel.ISupportInitialize)(this.eventLogForWin)).BeginInit();
             // 
-            // TextTransferService
+            // OneClickShotService
             // 
-            this.ServiceName = "TextTransferService";
+            this.ServiceName = "OneClickShotService";
             ((System.ComponentModel.ISupportInitialize)(this.eventLogForWin)).EndInit();
 
         }

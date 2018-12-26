@@ -97,6 +97,24 @@ namespace AtoiHomeManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to pack://application:,,,/AtoiHomeManager;component/resources/images/StartedService.png.
+        /// </summary>
+        internal static string StartedServiceImagePath {
+            get {
+                return ResourceManager.GetString("StartedServiceImagePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to pack://application:,,,/AtoiHomeManager;component/resources/images/StopedService.png.
+        /// </summary>
+        internal static string StopedServiceImagePath {
+            get {
+                return ResourceManager.GetString("StopedServiceImagePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OneClickShot (AtoiHomeService).
         /// </summary>
         internal static string StrMainWindowTitle {

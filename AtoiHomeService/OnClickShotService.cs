@@ -32,16 +32,16 @@ namespace AtoiHomeService
     };
 
 
-    public partial class TextTransferService: ServiceBase
+    public partial class OneClickShotService : ServiceBase
     {
-        public static ILog log = LogManager.GetLogger(typeof(TextTransferService));
+        public static ILog log = LogManager.GetLogger(typeof(OneClickShotService));
 
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern bool SetServiceStatus(System.IntPtr handle, ref ServiceStatus serviceStatus);
 
-        ServiceHostManager TextTransferServiceHostManager = new ServiceHostManager();
+        ServiceHostManager OneClickShotServiceHostManager = new ServiceHostManager();
 
-        public TextTransferService()
+        public OneClickShotService()
         {
             try
             {
@@ -74,7 +74,7 @@ namespace AtoiHomeService
                 serviceStatus.dwWaitHint = 100000;
                 SetServiceStatus(this.ServiceHandle, ref serviceStatus);
 
-                TextTransferServiceHostManager.StartService();
+                OneClickShotServiceHostManager.StartService();
 
                 // Update the service state to Running.
                 serviceStatus.dwCurrentState = ServiceState.SERVICE_RUNNING;
@@ -82,7 +82,7 @@ namespace AtoiHomeService
             }
             catch (Exception e)
             {
-                TextTransferServiceHostManager.StopService();
+                OneClickShotServiceHostManager.StopService();
                 eventLogForWin.WriteEntry(e.Message);
                 log.Info("Error :" + e.Message);
             }
@@ -98,7 +98,7 @@ namespace AtoiHomeService
             serviceStatus.dwCurrentState = ServiceState.SERVICE_STOP_PENDING;
             serviceStatus.dwWaitHint = 100000;
             SetServiceStatus(this.ServiceHandle, ref serviceStatus);
-            TextTransferServiceHostManager.StopService();
+            OneClickShotServiceHostManager.StopService();
             // Update the service state to Running.
 
             serviceStatus.dwCurrentState = ServiceState.SERVICE_STOPPED;

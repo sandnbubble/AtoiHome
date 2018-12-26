@@ -14,7 +14,7 @@ namespace AtoiHomeService
             {
                 ServicesToRun = new ServiceBase[]
                 {
-                new TextTransferService()
+                new OneClickShotService()
                 };
                 ServiceBase.Run(ServicesToRun);
             }

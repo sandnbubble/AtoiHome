@@ -9,13 +9,13 @@ namespace AtoiHomeServiceLib
 {
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public delegate void TextTransferEvent(object sender, TextTransferEventArgs e);
+    public delegate void OneClickShotEvent(object sender, OneClickShotEventArgs e);
 
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, IncludeExceptionDetailInFaults = true)]
-    public class TextTransfer : ITextTransferRest, ITextTransferSoap
+    public class OneClickShot : IOneClickShotRest, IOneClickShotSoap
     {
-        // create TextTransferEvent instance
-        public event TextTransferEvent onTextTransferEvent = delegate { };
+        // create OneClickShotEvent instance
+        public event OneClickShotEvent RaiseOneClickShotEvent = delegate { };
 
         /// <summary>
         /// 환경변수로 변경할 것
@@ -36,12 +36,12 @@ namespace AtoiHomeServiceLib
         {
             try
             {
-                onTextTransferEvent(this, new TextTransferEventArgs("atoi", MessageType.GET_DATA, "I'm a atoi", null));
+                RaiseOneClickShotEvent(this, new OneClickShotEventArgs("atoi", "gksrmf65!!",  MessageType.GET_DATA, "I'm a atoi", null));
                 return "Hello " + arg;
             }
             catch (Exception ex)
             {
-                onTextTransferEvent(this, new TextTransferEventArgs("atoi", MessageType.ERROR_MSG, this.ToString(), ex.Message.ToString()));
+                RaiseOneClickShotEvent(this, new OneClickShotEventArgs("atoi", "gksrmf65!!", MessageType.ERROR_MSG, this.ToString(), ex.Message.ToString()));
             }
             return null;
         }
@@ -77,12 +77,12 @@ namespace AtoiHomeServiceLib
                     InputStream.Close();
                 }
                 // Publish ImageUploadedEvent
-                onTextTransferEvent(this, new TextTransferEventArgs("atoi", MessageType.UPLOAD_IMAGE, strFilename, "Success"));
+                RaiseOneClickShotEvent(this, new OneClickShotEventArgs("atoi", "gksrmf65!!", MessageType.UPLOAD_IMAGE, strFilename, "Success"));
                 return Message.CreateMessage(MessageVersion.None, "UploadImage", "Success").ToString();
             }
             catch (Exception ex)
             {
-                onTextTransferEvent(this, new TextTransferEventArgs("atoi", MessageType.ERROR_MSG, strFilename, ex.Message.ToString()));
+                RaiseOneClickShotEvent(this, new OneClickShotEventArgs("atoi", "gksrmf65!!", MessageType.ERROR_MSG, strFilename, ex.Message.ToString()));
                 return Message.CreateMessage(MessageVersion.None, "UploadImage", ex.Message).ToString();
             }
         }
@@ -94,12 +94,12 @@ namespace AtoiHomeServiceLib
                 string filePath = System.IO.Path.Combine("D:/uploadfile/", strFilename);
                 System.IO.FileInfo fileInfo = new System.IO.FileInfo(filePath);
                 if (!fileInfo.Exists) throw new System.IO.FileNotFoundException("File not found");
-                onTextTransferEvent(this, new TextTransferEventArgs("atoi", MessageType.DOWNLOAD_IMAGE, strFilename, "Success"));
+                RaiseOneClickShotEvent(this, new OneClickShotEventArgs("atoi", "gksrmf65!!", MessageType.DOWNLOAD_IMAGE, strFilename, "Success"));
                 return File.OpenRead(filePath);
             }
             catch (Exception ex)
             {
-                onTextTransferEvent(this, new TextTransferEventArgs("atoi", MessageType.ERROR_MSG, strFilename, ex.Message.ToString()));
+                RaiseOneClickShotEvent(this, new OneClickShotEventArgs("atoi", "gksrmf65!!", MessageType.ERROR_MSG, strFilename, ex.Message.ToString()));
             }
             return null;
         }

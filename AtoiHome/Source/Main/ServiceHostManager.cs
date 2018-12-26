@@ -22,7 +22,7 @@ namespace AtoiHome
 
         public int StartService () 
         {
-            Program.log.DebugFormat("Start TextTransfer service");
+            Program.log.DebugFormat("Start OneClickShot service");
             try
             {
 
@@ -59,22 +59,22 @@ namespace AtoiHome
 
                 // ServiceHost는 첫번째 매개변수로 service type과 service instance를 사용할 수 있다.
                 // 매개변수로 service type을 사용할 경우 service의 instance는 client request가 발생할 때
-                // 생성된다. 따라서 TextTransfer service 메서드인 UploadImage가 발행하는 ImageUploadedEvent의 eventhandler를
-                // ServiceHostManager에서 등록하려면 ServiceHost의 첫번째 매개변수를 아래와 같이 TextTransfer instance로 설정해야한다.
-                // 이 방법을 사용할 때 event 발행자인 TextTransfer 서비스의 속성은 반드시 아래와 같아야한다. 
+                // 생성된다. 따라서 OneClickShot service 메서드인 UploadImage가 발행하는 ImageUploadedEvent의 eventhandler를
+                // ServiceHostManager에서 등록하려면 ServiceHost의 첫번째 매개변수를 아래와 같이 OneClickShot instance로 설정해야한다.
+                // 이 방법을 사용할 때 event 발행자인 OneClickShot 서비스의 속성은 반드시 아래와 같아야한다. 
                 //[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-                // TextTransfer class 참조할 것
+                // OneClickShot class 참조할 것
 
-                #region TextTransfer service 
-                TextTransfer instancTextTransfer = new TextTransfer();
+                #region OneClickShot service 
+                OneClickShot instancOneClickShot = new OneClickShot();
 #if DEBUG
-                serviceHost = new ServiceHost(instancTextTransfer, new Uri("http://" + strServiceIP + ":80/Test/TextTransfer"));
+                serviceHost = new ServiceHost(instancOneClickShot, new Uri("http://" + strServiceIP + ":80/Test/OneClickShot"));
 #else
-                serviceHost = new ServiceHost(instancTextTransfer, new Uri("http://" + strServiceIP + ":80/TextTransfer"));
+                serviceHost = new ServiceHost(instancOneClickShot, new Uri("http://" + strServiceIP + ":80/OneClickShot"));
 #endif
-                serviceHost.Opened += new EventHandler(TextTransferServiceOpened);
+                serviceHost.Opened += new EventHandler(OneClickShotServiceOpened);
                 serviceHost.Open();
-                Program.log.DebugFormat("\tTextTransfer Service Started with {0} end points", serviceHost.Description.Endpoints.Count);
+                Program.log.DebugFormat("\tOneClickShot Service Started with {0} end points", serviceHost.Description.Endpoints.Count);
 
                 foreach (Uri address in serviceHost.BaseAddresses)
                 {
@@ -84,9 +84,9 @@ namespace AtoiHome
                         Program.log.DebugFormat("\t{0} {1}", ed.Name, ed.ListenUri.ToString());
                     }
                 }
-#endregion
+                #endregion
 
-#region NotifyService that IPC between TextTransfer service and AtoiHomeManager client application
+                #region NotifyService that IPC between OneClickShot service and AtoiHomeManager client application
                 NotifyService instanceNotify = new NotifyService();
 #if DEBUG
                 IPCHost = new ServiceHost(instanceNotify, new Uri("net.pipe://localhost/Test"));
@@ -129,7 +129,7 @@ namespace AtoiHome
             {
                 Program.log.DebugFormat("\tPush service is closing...... ");
                 IPCHost.Close();
-                Program.log.DebugFormat("\tTextTransfer Service is closing...... ");
+                Program.log.DebugFormat("\tOneClickShot Service is closing...... ");
                 serviceHost.Close();
                 Program.log.DebugFormat("\tSevices were closed.... bye~~~");
                 return true;
@@ -157,8 +157,8 @@ namespace AtoiHome
         {
             try
             {
-                // Host는 다르지만 TextTransferEvent 타입은 TextTransf와 NotifyService가 공유한다.
-                (IPCHost.SingletonInstance as NotifyService).onTextTransferEvent += new TextTransferEvent(NotifyServiceOperationCompleted);
+                // Host는 다르지만 OneClickShotEvent 타입은 TextTransf와 NotifyService가 공유한다.
+                (IPCHost.SingletonInstance as NotifyService).OneClickShotEvent += new OneClickShotEvent(NotifyServiceOperationCompleted);
             }
             catch (Exception ex)
             {
@@ -175,7 +175,7 @@ namespace AtoiHome
         {
             try
             {
-                TextTransferEventArgs ClosingEventArgs = new TextTransferEventArgs("NotifyService", MessageType.NOTIFYSERVICE_CLOSING, "Closing", null);
+                OneClickShotEventArgs ClosingEventArgs = new OneClickShotEventArgs("NotifyService", null, MessageType.NOTIFYSERVICE_CLOSING, "Closing", null);
                 IPCService.SendMessage(ClosingEventArgs);
             }
             catch (Exception ex)
@@ -186,16 +186,16 @@ namespace AtoiHome
         }
 
         /// <summary>
-        /// TextTransfer service가 시작되면 main thread에서 TextTransfer service의 오퍼레이션들(GetData, UploadImage, DownloadImage 등)이
+        /// OneClickShot service가 시작되면 main thread에서 OneClickShot service의 오퍼레이션들(GetData, UploadImage, DownloadImage 등)이
         /// 발행하는 이벤트를 구독하기위한 이벤트핸들러를 정의하고 등록
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TextTransferServiceOpened(Object sender, EventArgs e)
+        private void OneClickShotServiceOpened(Object sender, EventArgs e)
         {
             try
             {
-                (serviceHost.SingletonInstance as TextTransfer).onTextTransferEvent += new TextTransferEvent(TextTransferServiceOperationCompleted);
+                (serviceHost.SingletonInstance as OneClickShot).RaiseOneClickShotEvent += new OneClickShotEvent(OneClickShotServiceOperationCompleted);
             }
             catch (Exception ex)
             {
@@ -205,11 +205,11 @@ namespace AtoiHome
 
 
         /// <summary>
-        /// TextTransfer 서비스의 오퍼레이션들이 발행하는 이벤트를 처리하기 위한 이벤트 핸들러
+        /// OneClickShot 서비스의 오퍼레이션들이 발행하는 이벤트를 처리하기 위한 이벤트 핸들러
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void NotifyServiceOperationCompleted(Object sender, TextTransferEventArgs e)
+        private void NotifyServiceOperationCompleted(Object sender, OneClickShotEventArgs e)
         {
             try
             {
@@ -243,11 +243,11 @@ namespace AtoiHome
 
 #region
         /// <summary>
-        /// TextTransfer 서비스의 오퍼레이션들이 발행하는 이벤트를 처리하기 위한 이벤트 핸들러
+        /// OneClickShot 서비스의 오퍼레이션들이 발행하는 이벤트를 처리하기 위한 이벤트 핸들러
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TextTransferServiceOperationCompleted(Object sender, TextTransferEventArgs e)
+        private void OneClickShotServiceOperationCompleted(Object sender, OneClickShotEventArgs e)
         {
             try
             {

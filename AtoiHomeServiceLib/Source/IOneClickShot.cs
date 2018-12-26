@@ -9,7 +9,7 @@ using System.ServiceModel.Web;
 namespace AtoiHomeServiceLib
 {
     [ServiceContract]
-    public interface ITextTransfer
+    public interface IOneClickShot
     {
         [OperationContract]
         [WebGet(UriTemplate = "/")]
@@ -21,7 +21,7 @@ namespace AtoiHomeServiceLib
     }
 
     [ServiceContract]
-    public interface ITextTransferRest: ITextTransfer
+    public interface IOneClickShotRest: IOneClickShot
     {
         [OperationContract]
 
@@ -31,7 +31,7 @@ namespace AtoiHomeServiceLib
     }
 
     [ServiceContract]
-    public interface ITextTransferSoap: ITextTransfer
+    public interface IOneClickShotSoap: IOneClickShot
     {
         // SOAP 종점 operation
         [OperationContract]

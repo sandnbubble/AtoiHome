@@ -42,14 +42,14 @@ namespace AtoiHomeServiceLib
     [ServiceContract(Namespace = "http://www.atoihome.com", SessionMode = SessionMode.Required, CallbackContract = typeof(ICallbackService))]
     public interface INotifyService
     {
-        [OperationContract(IsOneWay = true)]
-        void Connect(TextTransferEventArgs e);
+        [OperationContract]
+        bool Connect(OneClickShotEventArgs e);
 
         [OperationContract(IsOneWay = true)]
-        void Disconnect(TextTransferEventArgs e);
+        void Disconnect(OneClickShotEventArgs e);
         
         [OperationContract(IsOneWay = true)]
-        void SendMessage(TextTransferEventArgs e);
+        void SendMessage(OneClickShotEventArgs e);
 
         [OperationContract]
         [FaultContractAttribute(typeof(CustomerServiceFault))]
@@ -59,7 +59,7 @@ namespace AtoiHomeServiceLib
     public interface ICallbackService
     {
         [OperationContract(IsOneWay = true)]
-        void SendCallbackMessage(TextTransferEventArgs e);
+        void SendCallbackMessage(OneClickShotEventArgs e);
 
     }
 }

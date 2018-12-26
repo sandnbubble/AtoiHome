@@ -138,4 +138,10 @@
   <data name="DisconnectImagePath" xml:space="preserve">
     <value>pack://application:,,,/AtoiHomeManager;component/resources/images/disconnect.png</value>
   </data>
+  <data name="StartedServiceImagePath" xml:space="preserve">
+    <value>pack://application:,,,/AtoiHomeManager;component/resources/images/StartedService.png</value>
+  </data>
+  <data name="StopedServiceImagePath" xml:space="preserve">
+    <value>pack://application:,,,/AtoiHomeManager;component/resources/images/StopedService.png</value>
+  </data>
 </root>
