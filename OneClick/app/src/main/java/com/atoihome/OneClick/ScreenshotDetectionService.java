@@ -2,8 +2,8 @@ package com.atoihome.OneClick;
 
 import android.Manifest;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -11,17 +11,13 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.EditTextPreference;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import static android.app.PendingIntent.getActivity;
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class ScreenshotDetectionService extends Service {
@@ -35,7 +31,8 @@ public class ScreenshotDetectionService extends Service {
     // 시스템이 MainActivity를 kill하면 이 클라스의 정적으로 선언된 mHostServiceURL의 초기값을
     // 사용한다는 것이다. 이해가 안됨
     // 차라리 스토리지에서 값을 얻어 오는 것이 안전한 것으로 보인다. 수정해야함.
-    private static String mHostServiceURL="http://211.212.200.192/OneClickShot/WEB";
+//    private static String mHostServiceURL="http://211.212.200.192/OneClickShot/WEB";
+    private static String mHostServiceURL;
     private static String mServiceName="/OneClickShot/WEB";
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
@@ -43,9 +40,6 @@ public class ScreenshotDetectionService extends Service {
     private ServiceCallbacks serviceCallbacks;
 
 
-    protected void setHostServiceURL (String strURL) {
-        mHostServiceURL = strURL;
-    }
     // Class used for the client Binder.
     public class LocalBinder extends Binder {
         ScreenshotDetectionService getService() {
@@ -58,17 +52,64 @@ public class ScreenshotDetectionService extends Service {
         serviceCallbacks = callbacks;
     }
 
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+//    MediaPlayer player;
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        startScreenshotDetection();
+        Log.d("debug", "Started service in ScreenshotDetectionService.onStartCommand");
+//        player = MediaPlayer.create(this, R.raw.kalimba);
+//        player.setLooping(true);
+//        player.start();
+            try {
+                SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                String strHostURL = Prefs.getString("HostURL", "");
+                mHostServiceURL = strHostURL + mServiceName;
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        stopScreenshotDetection();
+        Log.d("debug", "Terminated service in ScreenshotDetectionService.onDestroy");
+//        player.stop();
+        super.onDestroy();
+    }
+    public void startScreenshotDetection() {
+        getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
+    }
+
+    public void stopScreenshotDetection() {
+        getContentResolver().unregisterContentObserver(contentObserver);
+    }
+
     private void onScreenshotCaptured(String strFilePath) {
-        UploadFileToServer uploadImage = new UploadFileToServer(getApplicationContext(), false);
-        uploadImage.uploadFileToServer(mHostServiceURL, strFilePath);
-        Toast.makeText(getApplicationContext(), mHostServiceURL+strFilePath, LENGTH_SHORT).show();
+        SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (Prefs.getBoolean("AutomaticUpload", false)){
+            UploadFileToServer uploadImage = new UploadFileToServer(getApplicationContext(), false);
+            uploadImage.uploadFileToServer(mHostServiceURL, strFilePath);
+        }
+//        Toast.makeText(getApplicationContext(), mHostServiceURL+strFilePath, LENGTH_SHORT).show();
         if (serviceCallbacks != null) {
             serviceCallbacks.setScreenshotImagePath(strFilePath);
         }
     }
 
     private void onScreenshotCapturedWithDeniedPermission() {
-            Toast.makeText(this, "Read external storage permission has denied", LENGTH_SHORT).show();
+        Toast.makeText(this, "Read external storage permission has denied", LENGTH_SHORT).show();
     }
 
     private ContentObserver contentObserver = new ContentObserver(new Handler()) {
@@ -96,64 +137,17 @@ public class ScreenshotDetectionService extends Service {
         }
     };
 
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return binder;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-//    MediaPlayer player;
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        startScreenshotDetection();
-        Log.d("debug", "Started service in ScreenshotDetectionService.onStartCommand");
-//        player = MediaPlayer.create(this, R.raw.kalimba);
-//        player.setLooping(true);
-//        player.start();
-            try {
-                FileInputStream InputSettings = openFileInput("Settings");
-                if (InputSettings != null) {
-                    int nLength = InputSettings.available();
-                    byte[] ReadData = new byte[nLength];
-                    InputSettings.read (ReadData, 0, nLength);
-                    mHostServiceURL = new String(ReadData, 0, nLength);
-                    mHostServiceURL += mServiceName;
-                    InputSettings.close();
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
-    public void onDestroy() {
-        stopScreenshotDetection();
-        Log.d("debug", "Terminated service in ScreenshotDetectionService.onDestroy");
-//        player.stop();
-        super.onDestroy();
-    }
-    public void startScreenshotDetection() {
-        getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
-    }
-
-    public void stopScreenshotDetection() {
-        getContentResolver().unregisterContentObserver(contentObserver);
-    }
-
     private boolean isReadExternalStoragePermissionGranted() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 
     private boolean isScreenshotPath(String path) {
-        return path != null && (path.toLowerCase().contains("screenshots") || path.toLowerCase().contains("camera")) ;
+        SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (Prefs.getBoolean("UploadCameraShot", false)) {
+            return path != null && (path.toLowerCase().contains("screenshots") || path.toLowerCase().contains("camera")) ;
+        } else {
+            return path != null && (path.toLowerCase().contains("screenshots")) ;
+        }
     }
 
     private String getFilePathFromContentResolver(Uri uri) {
@@ -170,5 +164,13 @@ public class ScreenshotDetectionService extends Service {
         } catch (IllegalStateException ignored) {
         }
         return null;
+    }
+
+    protected void setHostServiceURL (String strURL) {
+        mHostServiceURL = strURL;
+    }
+
+    public static String getmHostServiceURL() {
+        return mHostServiceURL;
     }
 }

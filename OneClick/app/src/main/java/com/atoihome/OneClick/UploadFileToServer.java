@@ -83,19 +83,19 @@ public class UploadFileToServer  {
             mProgressDlg = null;
             switch (iRet) {
                 case 0:
-                    Toast.makeText(mContext, "스크린샷 이미지를 업로드 하였습니다", LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Uploaded a screenshot image.", LENGTH_SHORT).show();
                     break;
                 case -1:
-                    Toast.makeText(mContext, "처리할 수 없는 요청입니다 ", LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Request can not be processed.", LENGTH_SHORT).show();
                     break;
                 case -2:
-                    Toast.makeText(mContext, "잘못된 URL입니다", LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Invalid URL", LENGTH_SHORT).show();
                     break;
                 case -3:
-                    Toast.makeText(mContext, "서버와 연결할 수 없습니다", LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Can not connect to the server.", LENGTH_SHORT).show();
                     break;
                 case -4:
-                    Toast.makeText(mContext, "파일을 전송하지 못했습니다", LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Image file transfer failed", LENGTH_SHORT).show();
                     break;
             }
         }

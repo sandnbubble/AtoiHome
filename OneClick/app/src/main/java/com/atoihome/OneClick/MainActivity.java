@@ -13,21 +13,19 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 
 import static android.widget.Toast.LENGTH_SHORT;
@@ -35,18 +33,19 @@ import static android.widget.Toast.LENGTH_SHORT;
 public class MainActivity extends AppCompatActivity  implements View.OnClickListener, ServiceCallbacks {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    public String strHostURL= "http://";
-    public String strServiceURL = "/OneClickShot/WEB";
 
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE_PERMISSION = 3009;
     private BackPressCloseHandler backPressCloseHandler;
     private Intent intentForService;
-    public String strScreenshotImagePath;
+    private Intent intentForSetting;
 
+    public String strScreenshotImagePath;
     private ScreenshotDetectionService sdService;
+
     private boolean bound = false;
     private boolean bIsVisibleActivity = false;
-    /** Callbacks for service binding, passed to bindService() */
+
+//    Callbacks for service binding, passed to bindService()
 //    serviceConnection은 ScreenshotDetectionService와 life cycle이 동일함
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -56,13 +55,9 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             sdService = binder.getService();
             bound = true;
             sdService.setCallbacks(MainActivity.this); // register
-//          Service에 종속된 속성변수 값을 여기서 설정할 수 있음 Strong reference이므로 종료처리시 주의
-            if (strHostURL != null && strServiceURL != null) {
-                sdService.setHostServiceURL(strHostURL + strServiceURL);
-            }
         }
 
-        //        비정상적으로 바인딩이 끊어지는 경우 호출, unbindService는 이 콜백함수를 호출하지않음
+//      비정상적으로 바인딩이 끊어지는 경우 호출, unbindService는 이 콜백함수를 호출하지않음
         @Override
         public void onServiceDisconnected(ComponentName arg0)
         {
@@ -71,73 +66,69 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         }
     };
 
+    //추가된 소스, ToolBar에 menu.xml을 인플레이트함
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //return super.onCreateOptionsMenu(menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    //추가된 소스, ToolBar에 추가된 항목의 select 이벤트를 처리하는 함수
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+//                User chose the "Settings" item, show the app settings UI...
+//                Toast.makeText(getApplicationContext(), "환경설정 버튼 클릭됨", Toast.LENGTH_LONG).show();
+                intentForSetting = new Intent(this, SettingActivity.class);
+                startActivity(intentForSetting);
+                return true;
+            case R.id.action_start:
+                startService(intentForService);
+                if (!bound)
+                {
+                    bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
+                }
+                return true;
+            case R.id.action_stop:
+                if (bound) {
+                    sdService.setCallbacks(null); // unregister
+                    unbindService(serviceConnection);
+                    bound = false;
+                }
+                stopService(intentForService);
+                return true;
+            case R.id.action_exit:
+                stopService(intentForService);
+                finish();
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                Toast.makeText(getApplicationContext(), "나머지 버튼 클릭됨", Toast.LENGTH_LONG).show();
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        try {
-            FileInputStream InputSettings = openFileInput("Settings");
-            if (InputSettings != null) {
-                int nLength = InputSettings.available();
-                byte[] ReadData = new byte[nLength];
-                InputSettings.read (ReadData, 0, nLength);
-                strHostURL = new String(ReadData, 0, nLength);
-                InputSettings.close();
-            }
-            else
-            {
-                FileOutputStream fos = openFileOutput("Settings", Context.MODE_PRIVATE);
-                fos.write(strHostURL.getBytes());
-                fos.close();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         checkReadExternalStoragePermission();
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
+
         backPressCloseHandler = new BackPressCloseHandler(this);
         intentForService = new Intent(this, ScreenshotDetectionService.class);
-
-        Button buttonStartService = findViewById(R.id.buttonStartService);
-        Button buttonStopService = findViewById(R.id.buttonStopService);
-        Button buttonExit = findViewById(R.id.buttonExit);
-        Button buttonUploadImage = findViewById((R.id.buttonUploadImage));
-        EditText edURL = findViewById(R.id.edURL);
-        edURL.setText(strHostURL);
-
-        buttonStartService.setOnClickListener(this);
-        buttonStopService.setOnClickListener(this);
-        buttonExit.setOnClickListener(this);
-        buttonUploadImage.setOnClickListener(this);
-
-        edURL.addTextChangedListener(new TextChangedListener<EditText>(edURL) {
-            @Override
-            public void onTextChanged(EditText target, Editable s) {
-                strHostURL = target.getText().toString();
-                if (bound == false) {
-                    bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
-                }
-                else
-                {
-                    sdService.setHostServiceURL(strHostURL+strServiceURL);
-                    try {
-                            FileOutputStream fos = openFileOutput("Settings", Context.MODE_PRIVATE);
-                            fos.write(strHostURL.getBytes());
-                            fos.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
 
         bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.d("Debug", "***************Started service in onCreate");
@@ -146,32 +137,18 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.buttonStartService:
-                startService(intentForService);
-                if (!bound)
-                {
-                    bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
-                }
-                break;
-            case R.id.buttonStopService:
-                if (bound) {
-                    sdService.setCallbacks(null); // unregister
-                    unbindService(serviceConnection);
-                    bound = false;
-                }
-                stopService(intentForService);
-
-                break;
-            case R.id.buttonUploadImage:
-                // UpoladImage클라스의 mContext에 ApplicationContext를 주면 사망함
-                UploadFileToServer uploadFile = new UploadFileToServer(this, true);
-                uploadFile.uploadFileToServer(strHostURL+strServiceURL, strScreenshotImagePath);
-                break;
-            case R.id.buttonExit:
-                stopService(intentForService);
-                finish();
+            default:
                 break;
         }
+    }
+
+    public void ImageView_Clicked (View view) {
+        // UpoladImage클라스의 mContext에 ApplicationContext를 주면 사망함
+        if (strScreenshotImagePath == null){
+            return;
+        }
+        UploadFileToServer uploadFile = new UploadFileToServer(this, true);
+        uploadFile.uploadFileToServer(sdService.getmHostServiceURL(), strScreenshotImagePath);
     }
 
     @Override
@@ -256,28 +233,5 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
     private void showReadExternalStoragePermissionDeniedMessage() {
         Toast.makeText(this, "Read external storage permission has denied", LENGTH_SHORT).show();
-    }
-
-
-    //    edURL 컨트롤의 값이 변경되면 호출되는 callback method가 사용할 추상클라스
-    public abstract class TextChangedListener<T> implements TextWatcher {
-        private T target;
-
-        public TextChangedListener(T target) {
-            this.target = target;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            this.onTextChanged(target, s);
-        }
-
-        public abstract void onTextChanged(T target, Editable s);
     }
 }
