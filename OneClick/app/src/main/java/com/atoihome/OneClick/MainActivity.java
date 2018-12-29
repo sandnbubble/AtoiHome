@@ -13,17 +13,17 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.Toast;
 import java.io.File;
 
@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
     private boolean bound = false;
     private boolean bIsVisibleActivity = false;
+
+    private boolean bServiceStarted = false;
 
 //    Callbacks for service binding, passed to bindService()
 //    serviceConnection은 ScreenshotDetectionService와 life cycle이 동일함
@@ -66,66 +68,23 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         }
     };
 
-    //추가된 소스, ToolBar에 menu.xml을 인플레이트함
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //return super.onCreateOptionsMenu(menu);
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu, menu);
-        return true;
-    }
-
-    //추가된 소스, ToolBar에 추가된 항목의 select 이벤트를 처리하는 함수
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //return super.onOptionsItemSelected(item);
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-//                User chose the "Settings" item, show the app settings UI...
-//                Toast.makeText(getApplicationContext(), "환경설정 버튼 클릭됨", Toast.LENGTH_LONG).show();
-                intentForSetting = new Intent(this, SettingActivity.class);
-                startActivity(intentForSetting);
-                return true;
-            case R.id.action_start:
-                startService(intentForService);
-                if (!bound)
-                {
-                    bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
-                }
-                return true;
-            case R.id.action_stop:
-                if (bound) {
-                    sdService.setCallbacks(null); // unregister
-                    unbindService(serviceConnection);
-                    bound = false;
-                }
-                stopService(intentForService);
-                return true;
-            case R.id.action_exit:
-                stopService(intentForService);
-                finish();
-                return true;
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                Toast.makeText(getApplicationContext(), "나머지 버튼 클릭됨", Toast.LENGTH_LONG).show();
-                return super.onOptionsItemSelected(item);
-
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         checkReadExternalStoragePermission();
-        setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowCustomEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(true);
+
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        ImageButton buttonUpload = (ImageButton) findViewById(R.id.buttonUpload);
+        buttonUpload.setOnClickListener(this);
 
         backPressCloseHandler = new BackPressCloseHandler(this);
         intentForService = new Intent(this, ScreenshotDetectionService.class);
@@ -134,21 +93,81 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         Log.d("Debug", "***************Started service in onCreate");
     }
 
+    Switch switchCtrlService;
+    //추가된 소스, ToolBar에 menu.xml을 인플레이트함
     @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //return super.onCreateOptionsMenu(menu);
+        try {
+            getMenuInflater().inflate(R.menu.menu, menu);
+            MenuItem item = (MenuItem) menu.findItem(R.id.action_ctrlservice);
+            item.setActionView(R.layout.switch_layout);
+            Switch switchCtrlService = item.getActionView().findViewById(R.id.switchActionBar);
+
+            switchCtrlService.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        startService(intentForService);
+                        if (!bound) {
+                            bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
+                        }
+                        bServiceStarted = true;
+                        Toast.makeText(getApplication(), "ON", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (bound) {
+                            sdService.setCallbacks(null); // unregister
+                            unbindService(serviceConnection);
+                            bound = false;
+                        }
+                        stopService(intentForService);
+                        bServiceStarted = false;
+                        Toast.makeText(getApplication(), "OFF", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            return true;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                intentForSetting = new Intent(this, SettingActivity.class);
+                startActivity(intentForSetting);
+                return true;
             default:
-                break;
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                Toast.makeText(getApplicationContext(), "Unknown menu was selected", Toast.LENGTH_LONG).show();
+                return super.onOptionsItemSelected(item);
         }
     }
 
-    public void ImageView_Clicked (View view) {
-        // UpoladImage클라스의 mContext에 ApplicationContext를 주면 사망함
-        if (strScreenshotImagePath == null){
-            return;
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.buttonUpload:
+                if (strScreenshotImagePath == null){
+                    return;
+                }
+                UploadFileToServer uploadFile = new UploadFileToServer(this, true);
+                uploadFile.uploadFileToServer(sdService.getHostServiceURL(), strScreenshotImagePath);
+                break;
+            default:
+                break;
         }
-        UploadFileToServer uploadFile = new UploadFileToServer(this, true);
-        uploadFile.uploadFileToServer(sdService.getmHostServiceURL(), strScreenshotImagePath);
     }
 
     @Override

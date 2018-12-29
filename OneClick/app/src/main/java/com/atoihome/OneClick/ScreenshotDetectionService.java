@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.EditTextPreference;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
@@ -21,24 +20,16 @@ import android.widget.Toast;
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class ScreenshotDetectionService extends Service {
-    // service에서 사용하는 mHostServiceURL의 설정을 bind된 activity에서 하는데
-    // application의 시스템에 의해 강제로 종료될 경우 service는 살아있지만
-    // 속성값들이 null로 된다. 아래와 같이 선언부에서 초기화를 하면 heap이 아니라
-    // data segment memory에 저장되는 것 같다. 오래되서 기억이 가물가물
-    // 이렇게 하면 activity가 죽어도 mHostServiceURL의 값은 safe하다.
-    // 이해가 되지 않는 것은 bindService에서 사용하는 mHostServiceURL과 mHostServiceURL이
-    // 다른 메모리를 참조한다는 것이다.
-    // 시스템이 MainActivity를 kill하면 이 클라스의 정적으로 선언된 mHostServiceURL의 초기값을
-    // 사용한다는 것이다. 이해가 안됨
-    // 차라리 스토리지에서 값을 얻어 오는 것이 안전한 것으로 보인다. 수정해야함.
-//    private static String mHostServiceURL="http://211.212.200.192/OneClickShot/WEB";
-    private static String mHostServiceURL;
-    private static String mServiceName="/OneClickShot/WEB";
+    // service에서 사용하는 mHostServiceURL의 설정을 bind된 activity할 경우
+    // application이 시스템에 의해 강제로 종료될 경우 service는 살아있지만
+    // activity에서 설정한 service의 속성값들이 null로 된다.
+    // 아래와 같이 선언부에서 초기화해서 data segment memory에 저장하면
+    // mHostServiceURL의 값은 safe하지만 하드코딩이기 때문에 변경도 할 수 없다.
+    // SharedPreference를 사용하는 것으로 교체해서 해결.
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
     // Registered callbacks
     private ServiceCallbacks serviceCallbacks;
-
 
     // Class used for the client Binder.
     public class LocalBinder extends Binder {
@@ -62,23 +53,11 @@ public class ScreenshotDetectionService extends Service {
         super.onCreate();
     }
 
-//    MediaPlayer player;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         startScreenshotDetection();
         Log.d("debug", "Started service in ScreenshotDetectionService.onStartCommand");
-//        player = MediaPlayer.create(this, R.raw.kalimba);
-//        player.setLooping(true);
-//        player.start();
-            try {
-                SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                String strHostURL = Prefs.getString("HostURL", "");
-                mHostServiceURL = strHostURL + mServiceName;
-
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-            return super.onStartCommand(intent, flags, startId);
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -100,9 +79,9 @@ public class ScreenshotDetectionService extends Service {
         SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (Prefs.getBoolean("AutomaticUpload", false)){
             UploadFileToServer uploadImage = new UploadFileToServer(getApplicationContext(), false);
-            uploadImage.uploadFileToServer(mHostServiceURL, strFilePath);
+            uploadImage.uploadFileToServer(getHostServiceURL(), strFilePath);
+            Toast.makeText(getApplicationContext(), getHostServiceURL()+strFilePath, LENGTH_SHORT).show();
         }
-//        Toast.makeText(getApplicationContext(), mHostServiceURL+strFilePath, LENGTH_SHORT).show();
         if (serviceCallbacks != null) {
             serviceCallbacks.setScreenshotImagePath(strFilePath);
         }
@@ -166,11 +145,9 @@ public class ScreenshotDetectionService extends Service {
         return null;
     }
 
-    protected void setHostServiceURL (String strURL) {
-        mHostServiceURL = strURL;
-    }
-
-    public static String getmHostServiceURL() {
-        return mHostServiceURL;
+    public String getHostServiceURL() {
+        SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String strHostURL = Prefs.getString("HostURL", "");
+        return strHostURL + "/OneClickShot/WEB";
     }
 }

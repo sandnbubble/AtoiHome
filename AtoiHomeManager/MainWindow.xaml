@@ -12,6 +12,7 @@
     BorderThickness="0" 
     Closing="Window_Closing" 
     WindowStartupLocation="Manual" 
+    Topmost="True"
     Left="2000" Top="0"
     Loaded="Window_Loaded" 
     ResizeMode="CanResizeWithGrip" 
