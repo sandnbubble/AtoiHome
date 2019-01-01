@@ -1,15 +1,19 @@
 package com.atoihome.OneClick;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -23,6 +27,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.Switch;
 import android.widget.Toast;
 import java.io.File;
@@ -63,7 +68,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         @Override
         public void onServiceDisconnected(ComponentName arg0)
         {
-            Toast.makeText(getApplicationContext(), "Terminated bind service by system.", LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "Terminated bind service by system.", LENGTH_SHORT).show();
             bound = false;
         }
     };
@@ -71,6 +76,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+//        Toast.makeText(this, "invoked oncreate", LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -89,12 +95,32 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         backPressCloseHandler = new BackPressCloseHandler(this);
         intentForService = new Intent(this, ScreenshotDetectionService.class);
 
-        bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
+        if (isServiceRunning(ScreenshotDetectionService.class)){
+            bServiceStarted = true;
+        }
         Log.d("Debug", "***************Started service in onCreate");
     }
 
     Switch switchCtrlService;
-    //추가된 소스, ToolBar에 menu.xml을 인플레이트함
+
+    @Override
+    public boolean  onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (bServiceStarted){
+//            Toast.makeText(this, "Invoked onPrepareOutionsMenu (bServiceStarted is true)", LENGTH_SHORT).show();
+            switchCtrlService.setChecked(true);
+            return true;
+        }
+        else if(Prefs.getBoolean("AutomaticStart", false) ) {
+            switchCtrlService.setChecked(true);
+        }
+        else{
+//            Toast.makeText(this, "Invoked onPrepareOutionsMenu (bServiceStarted is false)", LENGTH_SHORT).show();
+        }
+        return true;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //return super.onCreateOptionsMenu(menu);
@@ -102,7 +128,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             getMenuInflater().inflate(R.menu.menu, menu);
             MenuItem item = (MenuItem) menu.findItem(R.id.action_ctrlservice);
             item.setActionView(R.layout.switch_layout);
-            Switch switchCtrlService = item.getActionView().findViewById(R.id.switchActionBar);
+            switchCtrlService = item.getActionView().findViewById(R.id.switchActionBar);
 
             switchCtrlService.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -113,7 +139,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                             bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
                         }
                         bServiceStarted = true;
-                        Toast.makeText(getApplication(), "ON", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getApplication(), "ON", Toast.LENGTH_SHORT).show();
                     } else {
                         if (bound) {
                             sdService.setCallbacks(null); // unregister
@@ -122,7 +148,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                         }
                         stopService(intentForService);
                         bServiceStarted = false;
-                        Toast.makeText(getApplication(), "OFF", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getApplication(), "OFF", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -134,10 +160,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     }
 
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return super.onPrepareOptionsMenu(menu);
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -173,18 +195,27 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     @Override
     protected void onStart() {
 
-        Log.d("debug", "Invoked MainActivity.onStart ");
         super.onStart();
+
         bIsVisibleActivity = true;
         if (strScreenshotImagePath != null) {
             drawImage(strScreenshotImagePath);
         }
+//        Toast.makeText(this, "Invoked onStart", LENGTH_SHORT).show();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         bIsVisibleActivity = false;
+//        Toast.makeText(this, "Invoked onStart", LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+//        Toast.makeText(this, "Invoked onResume", LENGTH_SHORT).show();
     }
 
     @Override
@@ -199,6 +230,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             }
             stopService(intentForService);
             finish();
+//            Toast.makeText(this, "Invoked exit", LENGTH_SHORT).show();
         }
     }
 
@@ -252,5 +284,15 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
     private void showReadExternalStoragePermissionDeniedMessage() {
         Toast.makeText(this, "Read external storage permission has denied", LENGTH_SHORT).show();
+    }
+
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -20,12 +20,6 @@ import android.widget.Toast;
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class ScreenshotDetectionService extends Service {
-    // service에서 사용하는 mHostServiceURL의 설정을 bind된 activity할 경우
-    // application이 시스템에 의해 강제로 종료될 경우 service는 살아있지만
-    // activity에서 설정한 service의 속성값들이 null로 된다.
-    // 아래와 같이 선언부에서 초기화해서 data segment memory에 저장하면
-    // mHostServiceURL의 값은 safe하지만 하드코딩이기 때문에 변경도 할 수 없다.
-    // SharedPreference를 사용하는 것으로 교체해서 해결.
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
     // Registered callbacks
@@ -80,7 +74,7 @@ public class ScreenshotDetectionService extends Service {
         if (Prefs.getBoolean("AutomaticUpload", false)){
             UploadFileToServer uploadImage = new UploadFileToServer(getApplicationContext(), false);
             uploadImage.uploadFileToServer(getHostServiceURL(), strFilePath);
-            Toast.makeText(getApplicationContext(), getHostServiceURL()+strFilePath, LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), getHostServiceURL()+strFilePath, LENGTH_SHORT).show();
         }
         if (serviceCallbacks != null) {
             serviceCallbacks.setScreenshotImagePath(strFilePath);
