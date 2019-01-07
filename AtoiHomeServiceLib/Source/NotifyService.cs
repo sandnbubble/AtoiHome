@@ -32,7 +32,7 @@ namespace AtoiHomeServiceLib
 
             try
             {
-#if _EXTERNAL_DB
+#if _EXTERNAL_MARIADB
                 Source.Utility.DBApi.Connect("SERVER=localhost; DATABASE=atoihome; UID=root; PASSWORD=gksrmf65!!;");
                 bool bUserValidation = Source.Utility.DBApi.ValidateUser(e.UserId, e.Password);
 #else

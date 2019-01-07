@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.preference.SwitchPreference;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -27,7 +26,6 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.Switch;
 import android.widget.Toast;
 import java.io.File;
@@ -234,6 +232,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         }
     }
 
+
     protected boolean drawImage(String strPath) {
         File imgFile = new File(strPath);
 
@@ -241,7 +240,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             Bitmap bitmapScreenshotImage = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             ImageView imageview = (ImageView) findViewById(R.id.imageView);
             imageview.setImageBitmap(bitmapScreenshotImage);
-            return true;
         }
         return false;
     }

@@ -1,5 +1,6 @@
 ﻿using AtoiHomeServiceLib;
 using System;
+using System.Data.SqlClient;
 using System.Net.NetworkInformation;
 using System.ServiceModel;
 using System.ServiceModel.Description;
@@ -20,7 +21,7 @@ namespace AtoiHome
         ServiceHost serviceHost, IPCHost;
         NotifyService IPCService = new NotifyService();
 
-        public int StartService () 
+        public int StartService()
         {
             Program.log.DebugFormat("Start OneClickShot service");
             try
@@ -111,7 +112,7 @@ namespace AtoiHome
                     }
                 }
                 Program.log.DebugFormat("\tClick any key to close...");
-#endregion
+                #endregion
             }
             catch (Exception ex)
             {
@@ -143,7 +144,7 @@ namespace AtoiHome
             }
         }
 
-#region EventHandler
+        #region EventHandler
 
 
 
@@ -239,9 +240,9 @@ namespace AtoiHome
                 Program.log.ErrorFormat("Exception Error occurred in {0}\r\n{1}", this.ToString(), ex.Message);
             }
         }
-#endregion
+        #endregion
 
-#region
+        #region
         /// <summary>
         /// OneClickShot 서비스의 오퍼레이션들이 발행하는 이벤트를 처리하기 위한 이벤트 핸들러
         /// </summary>
@@ -258,7 +259,17 @@ namespace AtoiHome
                     {
                         // net.pipe에 연결된 client application에 UPLOAD_IMAGE를 알림
                         case MessageType.UPLOAD_IMAGE:
+
+#if _EXTERNAL_MSSQLDB
+                            DateTime dtUpload = DateTime.Now;
+                            string strUploadDate = dtUpload.ToString("yyyyMMdd hh:mm:ss");
                             e.MessageType = MessageType.DOWNLOAD_IMAGE;
+                            String SQLInsert = string.Format("INSERT INTO uploadimages (UserID, UploadDate, ImagePath) VALUES ('{0}', '{1}', '{2}');",
+                                e.UserId,
+                                strUploadDate,
+                                e.Message);
+                            InsertQuery(SQLInsert);
+#endif
                             IPCService.SendMessage(e);
                             Program.log.DebugFormat("Sent {0} message to {1}", e.MessageType.ToString(), e.UserId);
                             break;
@@ -276,6 +287,28 @@ namespace AtoiHome
                 Program.log.ErrorFormat("Exception Error occurred in {0}\r\n{1}", this.ToString(), ex.Message);
             }
         }
-#endregion
+
+#if _EXTERNAL_MSSQLDB
+        public bool InsertQuery(string strQuery)
+        {
+            try
+            {
+                SqlConnection myConnection = new SqlConnection("Data Source=ATOI\\ATOIHOMEDBSERVER; Persist Security Info = False; User ID = sa; Password = gksrmf; Initial Catalog = OneClickWeb");
+                //SqlConnection myConnection = new SqlConnection("Data Source=ATOI\\ATOIHOMEDBSERVER;Initial Catalog=OnClickWeb;Integrated Security=true");
+                SqlCommand myCommand = myConnection.CreateCommand();
+                myCommand.CommandText = strQuery;
+                myConnection.Open();
+                myCommand.ExecuteNonQuery();
+                myConnection.Close();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Program.log.DebugFormat(e.Message.ToString());
+                return false;
+            }
+        }
+#endif
     }
+    #endregion
 }

@@ -68,8 +68,12 @@
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\Images\Tray.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AtoiHomeServiceLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -127,10 +131,6 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Properties\Settings.cs" />
-    <Compile Include="Source\AppBar\AppBar.cs" />
-    <Compile Include="Source\AppBar\TransPrev.xaml.cs">
-      <DependentUpon>TransPrev.xaml</DependentUpon>
-    </Compile>
     <Page Include="Resources\Icons.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -160,10 +160,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Source\Hardcodet.Wpf.TaskbarNotification\NotifyIconResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Source\AppBar\TransPrev.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -291,6 +287,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Saki-NuoveXT-2-Mimetypes-text-html.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

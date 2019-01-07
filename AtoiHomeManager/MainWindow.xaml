@@ -17,8 +17,7 @@
     Loaded="Window_Loaded" 
     ResizeMode="CanResizeWithGrip" 
     ShowInTaskbar="True"
-    TitleCharacterCasing="Normal"
-    LocationChanged="Window_LocationChanged">
+    TitleCharacterCasing="Normal">
 
     <Controls:MetroWindow.Resources>
         <ResourceDictionary>

@@ -21,12 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1D51F815C345C29A2BB8B7FE53AEAFF8"
-        "OwnerKey" = "8:_01709E6FEB454EA389B1DA0F3CF50277"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_248CFB36239D913F89BF94C348ACBC74"
         "OwnerKey" = "8:_5C928BAD88A54E30A4926F659F0E7001"
         "MsmSig" = "8:_UNDEFINED"
@@ -52,19 +46,25 @@
         "Entry"
         {
         "MsmKey" = "8:_3B8B6FB3E43F90ACCAF9CAEAB8836460"
-        "OwnerKey" = "8:_2B7C07709A0440D79DB079DB5CDA2B0E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3B8B6FB3E43F90ACCAF9CAEAB8836460"
         "OwnerKey" = "8:_5C928BAD88A54E30A4926F659F0E7001"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_3B8B6FB3E43F90ACCAF9CAEAB8836460"
-        "OwnerKey" = "8:_1D51F815C345C29A2BB8B7FE53AEAFF8"
+        "OwnerKey" = "8:_2B7C07709A0440D79DB079DB5CDA2B0E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3B8B6FB3E43F90ACCAF9CAEAB8836460"
+        "OwnerKey" = "8:_52D7D929FE213309A594810EA4393733"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_52D7D929FE213309A594810EA4393733"
+        "OwnerKey" = "8:_01709E6FEB454EA389B1DA0F3CF50277"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -82,13 +82,13 @@
         "Entry"
         {
         "MsmKey" = "8:_875E439D7D0596D0330CE41C8684B4D5"
-        "OwnerKey" = "8:_2B7C07709A0440D79DB079DB5CDA2B0E"
+        "OwnerKey" = "8:_5C928BAD88A54E30A4926F659F0E7001"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_875E439D7D0596D0330CE41C8684B4D5"
-        "OwnerKey" = "8:_5C928BAD88A54E30A4926F659F0E7001"
+        "OwnerKey" = "8:_2B7C07709A0440D79DB079DB5CDA2B0E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -124,13 +124,7 @@
         "Entry"
         {
         "MsmKey" = "8:_F418292DD9620485C21845299EF06AB9"
-        "OwnerKey" = "8:_1D51F815C345C29A2BB8B7FE53AEAFF8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F418292DD9620485C21845299EF06AB9"
-        "OwnerKey" = "8:_2B7C07709A0440D79DB079DB5CDA2B0E"
+        "OwnerKey" = "8:_52D7D929FE213309A594810EA4393733"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -142,19 +136,19 @@
         "Entry"
         {
         "MsmKey" = "8:_F418292DD9620485C21845299EF06AB9"
-        "OwnerKey" = "8:_01709E6FEB454EA389B1DA0F3CF50277"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_01709E6FEB454EA389B1DA0F3CF50277"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_2B7C07709A0440D79DB079DB5CDA2B0E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F418292DD9620485C21845299EF06AB9"
+        "OwnerKey" = "8:_01709E6FEB454EA389B1DA0F3CF50277"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_01709E6FEB454EA389B1DA0F3CF50277"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -190,7 +184,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_1D51F815C345C29A2BB8B7FE53AEAFF8"
+        "OwnerKey" = "8:_2B7C07709A0440D79DB079DB5CDA2B0E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_52D7D929FE213309A594810EA4393733"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -362,37 +362,6 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_1D51F815C345C29A2BB8B7FE53AEAFF8"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:TextTransferService, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_1D51F815C345C29A2BB8B7FE53AEAFF8"
-                    {
-                    "Name" = "8:TextTransferService.exe"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:TextTransferService.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_E6C4ECF810224A22891A8D0C680C33E1"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_248CFB36239D913F89BF94C348ACBC74"
             {
             "AssemblyRegister" = "3:1"
@@ -438,6 +407,37 @@
                     }
                 }
             "SourcePath" = "8:AtoiHomeServiceLib.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E6C4ECF810224A22891A8D0C680C33E1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_52D7D929FE213309A594810EA4393733"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:AtoiHome, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_52D7D929FE213309A594810EA4393733"
+                    {
+                    "Name" = "8:AtoiHome.exe"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:AtoiHome.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E6C4ECF810224A22891A8D0C680C33E1"
@@ -667,7 +667,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:AtoiHomeSetup"
         "ProductCode" = "8:{04445CF5-EEDC-46E6-BDDC-EBB3EF76FA91}"
-        "PackageCode" = "8:{85D5E5DD-2387-4DCF-B948-8F959C69B031}"
+        "PackageCode" = "8:{AC2CBD3F-0384-41AF-9BEF-0F0A863AB560}"
         "UpgradeCode" = "8:{F965097F-0459-47FE-8F0B-B78930E6782B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1216,7 +1216,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_2B7C07709A0440D79DB079DB5CDA2B0E"
             {
-            "SourcePath" = "8:..\\AtoiHome\\obj\\Release\\TextTransferService.exe"
+            "SourcePath" = "8:..\\AtoiHome\\obj\\Release\\AtoiHome.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E6C4ECF810224A22891A8D0C680C33E1"

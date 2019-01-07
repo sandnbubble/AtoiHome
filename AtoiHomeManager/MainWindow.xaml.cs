@@ -10,13 +10,6 @@ using System.Windows.Media;
 using System.Windows.Input;
 using System.Windows.Controls;
 using MahApps.Metro.Controls;
-using System.Collections.Generic;
-using System.Windows.Shapes;
-using System.Windows.Markup;
-using System.Windows.Data;
-using System.Globalization;
-using System.Net.Mail;
-using System.Net;
 using System.ServiceProcess;
 
 namespace AtoiHomeManager
@@ -88,8 +81,10 @@ namespace AtoiHomeManager
             {
                 try
                 {
+#if (!DEBUG)
                     if (GetServiceStatus("OneClickShot") == false)
                         StartService("OneClickShot", 10000);
+#endif
                     if ((Application.Current as App).bConnected = ConnectToIPCService())
                     {
 
@@ -108,7 +103,9 @@ namespace AtoiHomeManager
                 try
                 {
                     IPCNotify.Disconnect(new OneClickShotEventArgs("atoi", null, MessageType.GET_DATA, "bye", null));
+#if (!DEBUG)
                     StopService("AtoiHomeService", 10000);
+#endif
                     (Application.Current as App).bConnected = false;
                     ((sender as Button).Content as StackPanel).FindChild<Image>("buttonServiceControlImage").Source = new BitmapImage(new Uri(Properties.Resources.StopedServiceImagePath));
                     ((sender as Button).Content as StackPanel).FindChild<TextBlock>("tbServiceControl").Text = "Stoped Service";
@@ -153,7 +150,6 @@ namespace AtoiHomeManager
                     if (bZoomView == true)
                         return;
                     bZoomView = true;
-                    scrollViewer.PreviewMouseWheel += OnPreviewMouseWheel;
                     (buttonViewMode.Content as StackPanel).FindChild<Image>("buttonViewModeImage").Source = new BitmapImage(new Uri(Properties.Resources.ZoomViewImagePath));
                     (buttonViewMode.Content as StackPanel).FindChild<TextBlock>("tbViewMode").Text = "ZoomView";
 
@@ -164,7 +160,6 @@ namespace AtoiHomeManager
                     if (bZoomView == false)
                         return;
                     bZoomView = false;
-                    scrollViewer.PreviewMouseWheel -= OnPreviewMouseWheel;
                     (buttonViewMode.Content as StackPanel).FindChild<Image>("buttonViewModeImage").Source = new BitmapImage(new Uri(Properties.Resources.ScrollViewImagePath));
                     (buttonViewMode.Content as StackPanel).FindChild<TextBlock>("tbViewMode").Text = "ScrollView";
                 }
@@ -251,6 +246,7 @@ namespace AtoiHomeManager
                 scrollViewer.ScrollChanged += OnScrollViewerScrollChanged;
                 scrollViewer.MouseLeftButtonUp += OnMouseLeftButtonUp;
                 scrollViewer.PreviewMouseLeftButtonUp += OnMouseLeftButtonUp;
+                scrollViewer.PreviewMouseWheel += OnPreviewMouseWheel;
 
                 scrollViewer.PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
                 scrollViewer.MouseMove += OnMouseMove;
@@ -294,6 +290,12 @@ namespace AtoiHomeManager
 
         void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
+            if (bZoomView == false)
+            {
+                if (Keyboard.Modifiers != ModifierKeys.Control)
+                    return;
+            }
+
             lastMousePositionOnTarget = Mouse.GetPosition(gridImage);
 
             if (e.Delta > 0)
@@ -380,8 +382,10 @@ namespace AtoiHomeManager
         {
             try
             {
+#if (!DEBUG)
                 if (GetServiceStatus("OneClickShot"))
                 {
+#endif
                     var callback = new App.NotifyCallback();
                     var context = new InstanceContext(callback);
                     NetNamedPipeBinding IPCBinding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.None);
@@ -398,9 +402,11 @@ namespace AtoiHomeManager
                         MessageBox.Show("Can not connect service");
                         return false;
                     }
+#if (!DEBUG)
                 }
                 else
-                    return false;
+                return false;
+#endif
             }
             catch (Exception ex)
             {
@@ -419,9 +425,6 @@ namespace AtoiHomeManager
                     IPCNotify.Disconnect(new OneClickShotEventArgs("atoi", null, MessageType.GET_DATA, "bye", null));
                     Application.Current.Shutdown();
                 }
-#endif
-#if APPBAR
-                UnregisterBar();
 #endif
             }
             catch (Exception ex)
@@ -448,7 +451,6 @@ namespace AtoiHomeManager
             {
                 try
                 {
-                    scrollViewer.PreviewMouseWheel += OnPreviewMouseWheel;
                     ((sender as Button).Content as StackPanel).FindChild<Image>("buttonViewModeImage").Source = new BitmapImage(new Uri(Properties.Resources.ZoomViewImagePath));
                     (buttonViewMode.Content as StackPanel).FindChild<TextBlock>("tbViewMode").Text = "ZoomView";
                 }
@@ -461,7 +463,6 @@ namespace AtoiHomeManager
             {
                 try
                 {
-                    scrollViewer.PreviewMouseWheel -= OnPreviewMouseWheel;
                     ((sender as Button).Content as StackPanel).FindChild<Image>("buttonViewModeImage").Source = new BitmapImage(new Uri(Properties.Resources.ScrollViewImagePath));
                     (buttonViewMode.Content as StackPanel).FindChild<TextBlock>("tbViewMode").Text = "ScrollView";
                 }
@@ -571,6 +572,21 @@ namespace AtoiHomeManager
             }
         }
 
-
+        public Rect GetWorkingArea()
+        {
+            if (secondaryScreen == null)
+            {
+                return new Rect(0, 0, (int)SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight);
+            }
+            else
+            {
+                int left = System.Windows.Forms.Screen.AllScreens.FirstOrDefault(x => !x.Primary).WorkingArea.Left;
+                int top = System.Windows.Forms.Screen.AllScreens.FirstOrDefault(x => !x.Primary).WorkingArea.Top;
+                int width = System.Windows.Forms.Screen.AllScreens.FirstOrDefault(x => !x.Primary).WorkingArea.Width;
+                int height = System.Windows.Forms.Screen.AllScreens.FirstOrDefault(x => !x.Primary).WorkingArea.Height;
+                Rect WorkingArea = new Rect(left, top, width, height);
+                return WorkingArea;
+            }
+        }
     }
 }
