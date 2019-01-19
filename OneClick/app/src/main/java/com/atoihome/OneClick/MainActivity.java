@@ -30,10 +30,11 @@ import android.widget.Switch;
 import android.widget.Toast;
 import java.io.File;
 
-
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class MainActivity extends AppCompatActivity  implements View.OnClickListener, ServiceCallbacks {
+
+    // Google 인증
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -77,6 +78,11 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 //        Toast.makeText(this, "invoked oncreate", LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
+//        Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+//        startActivity(intent);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         checkReadExternalStoragePermission();
@@ -146,7 +152,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                         }
                         stopService(intentForService);
                         bServiceStarted = false;
-//                        Toast.makeText(getApplication(), "OFF", Toast.LENGTH_SHORT).show();
+//                          Toast.makeText(getApplication(), "OFF", Toast.LENGTH_SHORT).show();
                     }
                 }
             });

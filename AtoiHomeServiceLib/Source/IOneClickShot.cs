@@ -18,8 +18,17 @@ namespace AtoiHomeServiceLib
         [OperationContract]
         [WebGet]
         string GetData(string arg);
-    }
 
+#if _EXTERNAL_MSSQLDB
+        [OperationContract]
+        [WebGet]
+        string SignIn(string Email, string Password);
+
+        [OperationContract]
+        [WebGet]
+        string SignUp(string Email, string Password);
+    }
+#endif
     [ServiceContract]
     public interface IOneClickShotRest: IOneClickShot
     {

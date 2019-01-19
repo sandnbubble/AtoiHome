@@ -262,9 +262,10 @@ namespace AtoiHome
 
 #if _EXTERNAL_MSSQLDB
                             DateTime dtUpload = DateTime.Now;
-                            string strUploadDate = dtUpload.ToString("yyyyMMdd hh:mm:ss");
+                            string strUploadDate = dtUpload.ToString("yyyyMMdd HH:mm:ss");
+                            Program.log.DebugFormat("UploadDate = {0}", strUploadDate);
                             e.MessageType = MessageType.DOWNLOAD_IMAGE;
-                            String SQLInsert = string.Format("INSERT INTO uploadimages (UserID, UploadDate, ImagePath) VALUES ('{0}', '{1}', '{2}');",
+                            String SQLInsert = string.Format("INSERT INTO uploadimage (UserID, UploadDate, ImagePath) VALUES ('{0}', '{1}', '{2}');",
                                 e.UserId,
                                 strUploadDate,
                                 e.Message);
@@ -289,12 +290,16 @@ namespace AtoiHome
         }
 
 #if _EXTERNAL_MSSQLDB
+        /// <summary>
+        /// Insert uploadimage infomation to database
+        /// </summary>
+        /// <param name="strQuery"></param>
+        /// <returns></returns>
         public bool InsertQuery(string strQuery)
         {
             try
             {
-                SqlConnection myConnection = new SqlConnection("Data Source=ATOI\\ATOIHOMEDBSERVER; Persist Security Info = False; User ID = sa; Password = gksrmf; Initial Catalog = OneClickWeb");
-                //SqlConnection myConnection = new SqlConnection("Data Source=ATOI\\ATOIHOMEDBSERVER;Initial Catalog=OnClickWeb;Integrated Security=true");
+                SqlConnection myConnection = new SqlConnection("Data Source=ATOI\\ATOIHOMEDBSERVER; Persist Security Info = False; User ID = sa; Password = gksrmf; Initial Catalog = AtoiHomeWeb");
                 SqlCommand myCommand = myConnection.CreateCommand();
                 myCommand.CommandText = strQuery;
                 myConnection.Open();

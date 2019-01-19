@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:summary="Email and password information"
+        android:title="Login information" >
+        <EditTextPreference
+            android:key="Email"
+            android:summary="Enter your Email"
+            android:singleLine="true"
+            android:title="Email" />
+        <EditTextPreference
+            android:key="Password"
+            android:summary="Enter your password"
+            android:singleLine="true"
+            android:title="Password" />
+        <EditTextPreference
+            android:key="HostURL"
+            android:summary="Enter host ip address"
+            android:singleLine="true"
+            android:title="Service URL" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:summary="Apps execute options"
+        android:title="Upload options" >
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="AutomaticUpload"
+            android:summary="use"
+            android:title="Upload screenshot automatically" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="UploadCameraShot"
+            android:summary="not use"
+            android:title="Upload image taken with the camera" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="AutomaticStart"
+            android:summary="use"
+            android:title="Run service at startup" />
+    </PreferenceCategory>
+</PreferenceScreen>

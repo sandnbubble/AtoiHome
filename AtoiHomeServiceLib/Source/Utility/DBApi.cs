@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -20,7 +21,7 @@ namespace AtoiHomeServiceLib.Source.Utility
         }
 
         #region _EXTERNAL_DB
-#if _EXTERNAL_DB
+#if _EXTERNAL_MARIADB
         static MySqlConnection connection;
         static MySqlCommand command;
 
@@ -90,5 +91,38 @@ namespace AtoiHomeServiceLib.Source.Utility
         }
 #endif
         #endregion
+#if _EXTERNAL_MSSQLDB
+        /// <summary>
+        /// Insert uploadimage infomation to database
+        /// </summary>
+        /// <param name="strQuery"></param>
+        /// <returns></returns>
+        public static bool ValidateUser(string strEmail, string strPassword)
+        {
+            try
+            {
+                SqlConnection myConnection = new SqlConnection("Data Source=ATOI\\ATOIHOMEDBSERVER; Persist Security Info = False; User ID = sa; Password = gksrmf; Initial Catalog = AtoiHomeWeb");
+                SqlCommand myCommand = myConnection.CreateCommand();
+                string strQuery = string.Format("select email from AspNetUsers where email='{0}'", strEmail);
+                myCommand.CommandText = strQuery;
+                myConnection.Open();
+                SqlDataReader Reader = myCommand.ExecuteReader();
+                bool bRet = false;
+                if (Reader.Read())
+                {
+                    bRet = true;
+                }
+                else
+                    bRet = false;
+                Reader.Close();
+                myConnection.Close();
+                return bRet;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+#endif
     }
 }

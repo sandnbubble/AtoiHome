@@ -19,6 +19,7 @@ namespace AtoiHomeManager
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        private static string strEmail = "admin@atoihome.site";
 #if DEBUG
         public static string HostAddr = "net.pipe://localhost/test/Notify";
 #else
@@ -38,12 +39,12 @@ namespace AtoiHomeManager
                         //DrawImageFromFile(e.Message);
                         break;
                     case MessageType.NOTIFYSERVICE_CLOSING:
-                        OneClickShotEventArgs disconnect = new OneClickShotEventArgs("atoi", null, MessageType.NOTIFYSERVICE_CLOSING, "Bye", null);
+                        OneClickShotEventArgs disconnect = new OneClickShotEventArgs(strEmail, null, MessageType.NOTIFYSERVICE_CLOSING, "Bye", null);
                         // 알림서브스에서 중지 메시지를 받으면 클라이언트에서 연결을 끊겠다는 메시지를 반송하여 서비스 종료를 명확하게 한다.
                         // 이를 하지 않으면 서비스 종료가 지연됨
                         try
                         {
-                            IPCNotify.Disconnect(new OneClickShotEventArgs("atoi", null, MessageType.GET_DATA, "bye", null));
+                            IPCNotify.Disconnect(new OneClickShotEventArgs(strEmail, null, MessageType.GET_DATA, "bye", null));
                             (Application.Current as App).bConnected = false;
                             (buttonServiceControl.Content as StackPanel).FindChild<Image>("buttonServiceControlImage").Source = new BitmapImage(new Uri(Properties.Resources.StopedServiceImagePath));
                             (buttonServiceControl.Content as StackPanel).FindChild<TextBlock>("tbServiceControl").Text = "Stoped Service";
@@ -102,7 +103,7 @@ namespace AtoiHomeManager
             {
                 try
                 {
-                    IPCNotify.Disconnect(new OneClickShotEventArgs("atoi", null, MessageType.GET_DATA, "bye", null));
+                    IPCNotify.Disconnect(new OneClickShotEventArgs(strEmail, null, MessageType.GET_DATA, "bye", null));
 #if (!DEBUG)
                     StopService("AtoiHomeService", 10000);
 #endif
@@ -393,7 +394,7 @@ namespace AtoiHomeManager
                     var pipeFactory = new DuplexChannelFactory<INotifyService>(context, IPCBinding, new EndpointAddress(HostAddr));
                     IPCNotify = pipeFactory.CreateChannel();
 
-                    OneClickShotEventArgs e = new OneClickShotEventArgs("atoi", "gksrmf65!!", MessageType.GET_DATA, "Hi", null);
+                    OneClickShotEventArgs e = new OneClickShotEventArgs(strEmail, "gksrmf65!!", MessageType.GET_DATA, "Hi", null);
                     if (IPCNotify.Connect(e))
                         return true;
                     else
@@ -422,7 +423,7 @@ namespace AtoiHomeManager
 #if DEBUG
                 if ((Application.Current as App).bConnected == true)
                 {
-                    IPCNotify.Disconnect(new OneClickShotEventArgs("atoi", null, MessageType.GET_DATA, "bye", null));
+                    IPCNotify.Disconnect(new OneClickShotEventArgs(strEmail, null, MessageType.GET_DATA, "bye", null));
                     Application.Current.Shutdown();
                 }
 #endif

@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "OneClickMain";
+}
+
+<table class="table">
+    <tr>
+        @*<td><font size="4">@Html.ActionLink("Manual", "Index", "Account", new { area = "" }, null)</font></td>*@
+        <td><font size="4">@Html.ActionLink("List of uploaded image", "Index", "UploadImageModels", new { area = "" }, null)</font></td>
+    </tr>
+</table>
+<p style="color:black">
+    <strong>OneClick서비스</strong>(원클릭서비스)는 안드로이드폰의 현재 화면을 <font color="black"><strong>한번의 동작</strong></font>으로 지정된 컴퓨터로
+    전송해서 화면속의 문자를 추출해 주는 서비스 플랫폼입니다. 추출된 문자는 여러 용도(음성출력,이미지검색, DB인덱싱 등)로 활용될 수 있습니다.
+</p>
+<p>
+    <strong>OneClick앱</strong>은 사용자가 캡처한 화면을 추가적인 동작없이 지정된 Host컴퓨터나 웹사이트로 전송하는 안드로이드용 앱입니다.
+    Host컴퓨터는 OneClick앱 설정화면 "Service URL" 항목에 설정한 IP주소가 할당된 컴퓨터(Microsoft Windows가 설치된)입니다.
+
+<p>
+    OneClick앱에서 전송한 화면을 사용자에게 보여주고 가공하기 위해 원클릭서비스는 두가지 형태의 서비스를 제공합니다.<br />
+    @Html.ActionLink("OneClickViewer", "DownloadFile", "Home", new { Filename = "oneclickviewer.zip" }, null)는
+    사용자가 지정한 Host컴퓨터에 설치되어 수신된 화면을 보여주는 마이크로소프트 윈도우즈용 앱입니다<br />
+    <a href="https://www.atoihome.site/UploadImageModels">www.atoihome.site</a>은 크롬, Edge등의 범용 인터넷 브라우저를
+    이용해 서비스를 받을 수 있는 웹사이트입니다.
+</p>
+@*<p >
+    www.atoihome.site에서 전송한 이미지를 보기 위해서는 <strong>OneClick</strong> 앱에서
+    등록한 사용자계정으로 <a href="@ViewBag.URL/Account/Login">로그인</a> 해야합니다. 계정이 없으면 사용자계정을 만들고
+    로그인합니다. 웹서비스에서 사용자계정을 만든 경우 <strong>OneClick</strong>앱에도 동일한 사용자계정으로 설정해야합니다.
+    google 계정을 사용하여 사용자계정을 만들고 로그인하는 방법을 추천합니다.
+    </p>*@
+<p>
+    이제 OneClick앱을 이용해 안드로이드폰의 홈화면을 캡처해서 www.atoihome.site로 전송하고 확인해 보겠습니다.
+    Google Play에서 OneClickShot으로 검색해서 OneClick앱을 설치하고 실행하면 아래와 같은 로그인화면이 출력됩니다.
+</p>
+<br /><br />
+<table class="table">
+    <tr>
+        <td>
+            <img src="~/Content/Images/login.png" alt="로그인캡처화면" style="width:250px;" />
+        </td>
+        <td>
+            <p>로그인 화면을 보시면 "tester@atoihome.site"계정으로 로그인할 수 있도록 설정되어있습니다. 하단의 로그인 버튼을 탭하여 로그인합니다.</p>
+        </td>
+    </tr>
+</table>
+
+<p>
+    안드로이드폰의 "Home버튼"을 눌러 홈화면으로 이동해서 캡처기능을 이용해 홈화면을 캡처하십시요.
+</p>
+
+<br /><br />
+<table class="table">
+    <tr>
+        <td>
+            <img src="~/Content/Images/home.png" alt="홈캡처화면" style="width:250px;" /><br />
+        </td>
+        <td>
+            <p>안드로이드폰은 사용자가 보고 있는 화면을 이미지로 저장해주는 캡처 기능이 있습니다. 이 기능을 사용하는 방법은 제조회사별로 다릅니다.</p>
+            <table class="table" font size="3">
+                <tr>
+                    <td>
+                        삼성
+                    </td>
+                    <td>
+                        Home+Power
+                    </td>
+                    <td>
+                        홈 버튼과 파워 버튼을 동시에 누름
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        엘지
+                    </td>
+                    <td>
+                        Power+Sound down
+                    </td>
+                    <td>
+                        파워 버튼과 소리줄임 버튼을 동시에 누름
+                    </td>
+                </tr>
+            </table>
+            <p>이제 전송된 화면을 웹브라우저를 이용해 <a href="https://www.atoihome.site/UploadImageModels">www.atoihome.site</a>에서 확인할 수 있습니다. </p>
+        </td>
+    </tr>
+</table>
+
+<br /><br />
+<table class="table">
+    <tr>
+        <td>
+            <img src="~/Content/Images/sample.png" alt="원클릭 메인화면" style="width:250px;" />
+        </td>
+        <td>
+            <P>왼쪽 그림의 상단에 있는 액션바 우측에 두개의 이미지버튼이 있습니다.<br /><br /></P>
+            <p>첫번째 버튼은 원클릭앱 서비스의 사용여부를 설정하는 switch버튼입니다.<br /></p>
+            <p>두번째 버튼은 설정화면으로 이동하는 버튼입니다.<br /></p>
+            <p>메인화면에는 캡처한 이미지가 출력됩니다.<br /></p>
+            <p>OneClick앱 우측 하단의 전송버튼을 탭하면 메인화면에 출력된 최근 캡처 이미지를 업로드합니다.</p>
+        </td>
+    </tr>
+</table>
+<br /><br />
+<table class="table">
+    <tr>
+        <td>
+            <img src="~/Content/Images/Preference.png" alt="원클릭 설정화면" style="width:250px;" />
+
+        </td>
+        <td>
+            <p>
+                "Service URL"에 이미지를 수신 할 Host컴퓨터의 IP주소를 입력거나 www.atoihome.site를 입력합니다.
+            </p>
+            <p>
+                "Upload screenshot automatically"를 사용하면 캡처한 이미지가 자동 전송됩니다.
+                이 옵션을 사용하지 않도록 설정하면 안드로이드폰의 공유기능을 사용하여 카톡과 같은 다른 앱으로 이미지를 전송할 수 있습니다.
+            </p>
+            <p>
+                "Upload image taken with the camera"를 활성화하면 카메라롤의 이미지를 전송할 수 있습니다.
+            </p>
+            <p>
+                "Run service at startup"을 활성화하면 앱이 실행될 때 서비스가 자동으로 활성화됩니다.
+            </p>
+
+        </td>
+    </tr>
+</table>

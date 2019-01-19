@@ -12,12 +12,15 @@ namespace OneClickWeb.Controllers
 {
     public class UploadImagesController : Controller
     {
-        private UploadImageDBContext db = new UploadImageDBContext();
+        private OneClickDBContext db = new OneClickDBContext();
 
         // GET: UploadImages
         public ActionResult Index()
         {
-            return View(db.UploadImages.ToList());
+            if (Session["Email"] != null)
+                return View(db.UploadImages.ToList());
+            else
+                return RedirectToAction("SignIn", "UserProfiles");
         }
 
         // GET: UploadImages/Details/5

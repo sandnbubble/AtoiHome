@@ -3,8 +3,10 @@ package com.atoihome.OneClick;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -129,6 +131,11 @@ public class UploadFileToServer  {
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/octet-stream");
                 connection.setRequestProperty("Upload-Filename", strfileName);
+                // 로그인한 후 서버에서 발행한 토큰으로 설정해야하지만 임시로 Email을 설정해서
+                // WCF 서비스에서 업로드한 가입자가 누구인지 판단하도록 함
+                // 웹서버에서 토큰을 발행할 수 있게되면 변경할 것
+                SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+                connection.setRequestProperty("Authorization", Prefs.getString("Email", ""));
                 connection.setConnectTimeout(10000);
                 //creating new dataoutputstream
                 dataOutputStream = new DataOutputStream(connection.getOutputStream());
@@ -192,58 +199,6 @@ public class UploadFileToServer  {
                 e.printStackTrace();
             }
             return iRet;
-        }
-    }
-
-    protected class  validateUser extends AsyncTask <String, Void, String>{
-        private String result;
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-
-        @Override protected void onPreExecute() { super.onPreExecute(); }
-
-        @Override
-        protected void onPostExecute(String result)
-        {
-            super.onPostExecute(result);
-
-            if(result != null){
-                Log.d("ASYNC", "result = " + result);
-            }
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                URL url = new URL(params[0]+"GetData?arg=this is echo string written by atoi");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setDoInput(true);
-                InputStream is = connection.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-
-                String readLine = null;
-                StringBuilder sbInput = new StringBuilder();
-
-                while ((readLine = br.readLine()) != null) {
-                    System.out.println(readLine);
-                    sbInput.append(readLine+"\n");
-                }
-                result = sbInput.toString();
-                br.close();
-                return result;
-
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return null;
         }
     }
 }

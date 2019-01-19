@@ -18,6 +18,19 @@ namespace OneClickWeb
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
+
+            //routes.MapRoute(
+            //name: "UserPofile",
+            //url: "{controller}/{action}/{email}",
+            //defaults: new { controller = "UserProfiles", action = "UploadImages", email = UrlParameter.Optional }
+            //);
+
+            //routes.MapRoute(
+            //name: "UploadImage",
+            //url: "{controller}/{action}/{id}",
+            //defaults: new { controller = "UploadImages", action = "Details", id = UrlParameter.Optional }
+            //);
+
         }
     }
 }

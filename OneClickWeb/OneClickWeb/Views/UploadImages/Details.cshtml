@@ -33,9 +33,12 @@
         <dd>
             @Html.DisplayFor(model => model.ImagePath)
         </dd>
+        <dd>
+                <img src="~/Uploadfile/@Url.Content(Model.ImagePath)" width=600 />
+        </dd>
+
     </dl>
 </div>
-<img src="~/uploadfiles/@Model.ImagePath" alt="Sample Image" style="width:800px;"/>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.ID }) |
     @Html.ActionLink("Back to List", "Index")
