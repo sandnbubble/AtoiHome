@@ -20,18 +20,18 @@ namespace AtoiHomeManager
         {
             try
             {
-                Samples.FancyBalloon balloon = new Samples.FancyBalloon();
+                //Samples.FancyBalloon balloon = new Samples.FancyBalloon();
                 if (e.MessageType == MessageType.NOTIFYSERVICE_CLOSING)
                 {
                     (Current as App).bConnected = false;
-                    balloon.BalloonText = "알림서버가 서비스를 중지했습니다";
+                    //balloon.BalloonText = "알림서버가 서비스를 중지했습니다";
                 }
                 else
                 {
                     //IPC서버가 OneClickShot.UploadImage에서 발행한  이벤트에 포함된 업로드파일명을 라우트하여 전달
-                    balloon.BalloonText = e.Message + "이미지가 수신되었습니다";
+                    //balloon.BalloonText = e.Message + "이미지가 수신되었습니다";
                 }
-                (Current as App).notifyIcon.ShowCustomBalloon(balloon, PopupAnimation.Slide, 4000);
+                //(Current as App).notifyIcon.ShowCustomBalloon(balloon, PopupAnimation.Slide, 4000);
 
                 if (Current.MainWindow == null)
                 {

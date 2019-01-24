@@ -2,7 +2,7 @@
 using System.Windows;
 using AtoiHomeServiceLib;
 using Hardcodet.Wpf.TaskbarNotification;
-
+using MahApps.Metro;
 
 namespace AtoiHomeManager
 {
@@ -19,6 +19,12 @@ namespace AtoiHomeManager
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            Tuple<AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
+
+            // now set the Green accent and dark theme
+            ThemeManager.ChangeAppStyle(Application.Current,
+                                        ThemeManager.GetAccent("Green"),
+                                        ThemeManager.GetAppTheme("BaseDark")); // or appStyle.Item1
             base.OnStartup(e);
             try
             {

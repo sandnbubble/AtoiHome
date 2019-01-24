@@ -4,7 +4,7 @@ apply plugin: 'com.google.gms.google-services'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.example.atoi.texttransfer"
+        applicationId "com.atoihome.oneclick"
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 1
@@ -17,6 +17,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+//    flavorDimensions "free"
+//    productFlavors {
+//        free {
+//            dimension  "free"
+//            applicationIdSuffix ".free"
+//            versionNameSuffix "-free"
+//        }
+//    }
 }
 
 dependencies {

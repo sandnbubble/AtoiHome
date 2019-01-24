@@ -1,4 +1,8 @@
-﻿using System.Web.Http;
+﻿using Newtonsoft.Json.Serialization;
+using System.Linq;
+using System.Net.Http.Formatting;
+using System.Runtime.Serialization;
+using System.Web.Http;
 
 namespace AtoiHomeWeb
 {
@@ -19,9 +23,10 @@ namespace AtoiHomeWeb
 
             // WebAPI when dealing with JSON & JavaScript!
             // Setup json serialization to serialize classes to camel (std. Json format)
-            var formatter = GlobalConfiguration.Configuration.Formatters.JsonFormatter;
-            formatter.SerializerSettings.ContractResolver =
-                new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+            //var formatter = GlobalConfiguration.Configuration.Formatters.JsonFormatter;
+            var jsonFormatter = config.Formatters.OfType<JsonMediaTypeFormatter>().First();
+            //Formatter.SerializerSettings.ContractResolver =
+            jsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
         }
     }
 }

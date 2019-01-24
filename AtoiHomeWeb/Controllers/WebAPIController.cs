@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -9,89 +10,77 @@ using System.Web.Http;
 
 namespace AtoiHomeWeb.Controllers
 {
-    public class LoginBindingModel
+    [RoutePrefix("api/RestAccount")]
+    public class RestAccountController : ApiController
     {
-        [Required]
-        [Display(Name = "Email")]
-        [EmailAddress]
-        public string Email { get; set; }
+        private Providers.AuthRepository _repo = null;
 
-        [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; }
-    }
-
-    public class RegisterBindingModel
-    {
-        [Required]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
-
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; }
-
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; }
-    }
-
-
-    public class WebAPIController : ApiController
-    {
-        private ApplicationUserManager UserManager
+        public RestAccountController()
         {
-            get
-            {
-
-                return Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
+            _repo = new Providers.AuthRepository();
         }
 
-        [HttpPost]
+        /// <summary>
+        /// POST api/Account/Register 
+        /// </summary>
+        /// <param name="userModel"></param>
+        /// (grant_type=password&username=”Taiseer”&password=”SuperPass”
+        /// <returns></returns>
         [AllowAnonymous]
-        //[Route("SignIn")]
-        public async Task<IHttpActionResult> SignIn(LoginBindingModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            IdentityUser user = await UserManager.FindAsync(model.Email, model.Password);
-
-            if (user == null)
-            {
-                IdentityResult result = new IdentityResult("Username not found");
-                return GetErrorResult(result);
-            }
-
-            return Ok();
-        }
-         
-        [HttpPost]
-        [AllowAnonymous]
-        //[Route("SignUp")]
-        public async Task<IHttpActionResult> SignUp(RegisterBindingModel model)
+        [Route("SignUp")]
+        public async Task<IHttpActionResult> SignUp(Models.WebAPISignUpModel userModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            IdentityResult result = await _repo.RegisterUser(userModel);
 
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+            IHttpActionResult errorResult = GetErrorResult(result);
 
-            if (!result.Succeeded)
+            if (errorResult != null)
             {
-                return GetErrorResult(result);
+                return errorResult;
             }
 
             return Ok();
+        }
+
+        /// <summary>
+        /// GET api/Account/Get
+        /// GET 요청 테스트용 메서드
+        /// </summary>
+        /// <returns></returns>
+        [Authorize]
+        [Route("Get")]
+        public IHttpActionResult Get()
+        {
+            return Ok("hello");
+        }
+
+        /// <summary>
+        /// GET api/Account/Get
+        /// GET 요청 테스트용 메서드
+        /// </summary>
+        /// <returns></returns>
+        
+        [Authorize]
+        [HttpGet]
+        [Route("ValidateToken")]
+        public IHttpActionResult ValidateToken()
+        {
+            return Ok("true");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _repo.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
 
         private IHttpActionResult GetErrorResult(IdentityResult result)
@@ -100,6 +89,7 @@ namespace AtoiHomeWeb.Controllers
             {
                 return InternalServerError();
             }
+
             if (!result.Succeeded)
             {
                 if (result.Errors != null)
@@ -109,16 +99,16 @@ namespace AtoiHomeWeb.Controllers
                         ModelState.AddModelError("", error);
                     }
                 }
+
                 if (ModelState.IsValid)
                 {
-                    // No ModelState errors are available to send, 
-                    // so just return an empty BadRequest.
+                    // No ModelState errors are available to send, so just return an empty BadRequest.
                     return BadRequest();
                 }
+
                 return BadRequest(ModelState);
             }
-            return Ok();
+            return null;
         }
-
     }
 }

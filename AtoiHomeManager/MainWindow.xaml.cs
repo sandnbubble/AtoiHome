@@ -19,8 +19,8 @@ namespace AtoiHomeManager
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        private static string strEmail = "admin@atoihome.site";
-#if DEBUG
+        private static string strEmail = "tester@atoihome.site";
+#if TEST_SERVICE
         public static string HostAddr = "net.pipe://localhost/test/Notify";
 #else
         public static string HostAddr = "net.pipe://localhost/Notify";
@@ -82,7 +82,7 @@ namespace AtoiHomeManager
             {
                 try
                 {
-#if (!DEBUG)
+#if (!TEST_SERVICE)
                     if (GetServiceStatus("OneClickShot") == false)
                         StartService("OneClickShot", 10000);
 #endif
@@ -104,7 +104,7 @@ namespace AtoiHomeManager
                 try
                 {
                     IPCNotify.Disconnect(new OneClickShotEventArgs(strEmail, null, MessageType.GET_DATA, "bye", null));
-#if (!DEBUG)
+#if (!TEST_SERVICE)
                     StopService("AtoiHomeService", 10000);
 #endif
                     (Application.Current as App).bConnected = false;
@@ -175,7 +175,7 @@ namespace AtoiHomeManager
         public void DrawScreenshotImageAndSave(string strFilename)
         {
             //creating the object of WCF service client       
-#if DEBUG
+#if TEST_SERVICE
             TestOneClickShotServiceSoap.OneClickShotSoapClient WCFClient = new TestOneClickShotServiceSoap.OneClickShotSoapClient();
 #else
             OneClickShotServiceSoap.OneClickShotSoapClient WCFClient = new OneClickShotServiceSoap.OneClickShotSoapClient();
@@ -238,10 +238,8 @@ namespace AtoiHomeManager
                 }
 
 
-#if DEBUG
-                this.Title += " - Debug";
-#else
-                this.Title += " - Release";
+#if TEST_SERVICE
+                this.Title += " - TEST";
 #endif
 
                 scrollViewer.ScrollChanged += OnScrollViewerScrollChanged;
@@ -383,7 +381,7 @@ namespace AtoiHomeManager
         {
             try
             {
-#if (!DEBUG)
+#if (!TEST_SERVICE)
                 if (GetServiceStatus("OneClickShot"))
                 {
 #endif
@@ -403,7 +401,7 @@ namespace AtoiHomeManager
                         MessageBox.Show("Can not connect service");
                         return false;
                     }
-#if (!DEBUG)
+#if (!TEST_SERVICE)
                 }
                 else
                 return false;
@@ -420,7 +418,7 @@ namespace AtoiHomeManager
             try
             {
 
-#if DEBUG
+#if TEST_SERVICE
                 if ((Application.Current as App).bConnected == true)
                 {
                     IPCNotify.Disconnect(new OneClickShotEventArgs(strEmail, null, MessageType.GET_DATA, "bye", null));

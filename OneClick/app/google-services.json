@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:345012409745:android:817a115aceb14795",
         "android_client_info": {
-          "package_name": "com.example.atoi.texttransfer"
+          "package_name": "com.atoihome.oneclick"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "345012409745-dumfe41a61nv3inhcjs2fnu2v97ognu8.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.atoi.texttransfer",
+            "package_name": "com.atoihome.oneclick",
             "certificate_hash": "73fb1fc8a4aa02f017c2993f9cc44b9e1e49d94f"
           }
         },

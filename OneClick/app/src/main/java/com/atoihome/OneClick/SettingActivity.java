@@ -1,4 +1,4 @@
-package com.atoihome.OneClick;
+package com.atoihome.oneclick;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

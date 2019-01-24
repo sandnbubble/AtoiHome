@@ -1,4 +1,4 @@
-package com.atoihome.OneClick;
+package com.atoihome.oneclick;
 
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
@@ -27,7 +29,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -49,7 +50,6 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
         _emailText.setText(Prefs.getString("Email", ""));
         _passwordText.setText(Prefs.getString("Password", ""));
-
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -57,7 +57,6 @@ public class LoginActivity extends AppCompatActivity {
                 login();
             }
         });
-
         _signupLink.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -85,9 +84,9 @@ public class LoginActivity extends AppCompatActivity {
         String password = _passwordText.getText().toString();
 
         // TODO: Implement your own authentication logic here.
-        String UserInfo = "{\"Email\":\""+email+"\",\"Password\":\"" + password+"\"}";
+        String UserInfo = "grant_type=password&username="+email+"&password="+password;
         HttpPost InvokeSignIn = new HttpPost();
-        InvokeSignIn.execute("https://www.atoihome.site/api/webapi/signin", UserInfo);
+        InvokeSignIn.execute("https://www.atoihome.site/token", UserInfo);
     }
 
 
@@ -108,18 +107,18 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         // Disable going back to the MainActivity
+        //현재 Task가 백그라운드로 이동하게된다.
         moveTaskToBack(true);
     }
 
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
 
-        // 여기에 계정생성이 성공한 후 처리를 한다. SignUp에서 할 수도 있지만
-        // SignIn, Signup을 하나로 통할 할 경우를 종속성을 갖지 않아야한다.
         SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = Prefs.edit();
         editor.putString("Email", _emailText.getText().toString());
         editor.putString("Password", _passwordText.getText().toString());
+        editor.putString("AuthServer", getString(R.string.AuthServer));
         editor.commit();
 
         finish();
@@ -127,7 +126,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-
         _loginButton.setEnabled(true);
     }
 
@@ -250,17 +248,17 @@ public class LoginActivity extends AppCompatActivity {
                 connection.setDoOutput(true);//Allow Outputs
                 connection.setUseCaches(false);//Don't use a cached Copy
                 connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 connection.setConnectTimeout(10000);
 
                 OutputStream os = connection.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
 
-//                writer.write("{\"Email\":\"alice@example.com\",\"Password\":\"Password1!\",\"ConfirmPassword\":\"Password1!\"}");
                 writer.write(params[1]);
                 writer.flush();
                 writer.close();
                 os.close();
+
                 serverResponseCode = connection.getResponseCode();
                 final String serverResponseMessage = connection.getResponseMessage();
 
@@ -268,7 +266,28 @@ public class LoginActivity extends AppCompatActivity {
 
                 //response code of 200 indicates the server status OK
                 if (serverResponseCode == 200) {
+                    InputStream is = connection.getInputStream();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+                    String readLine = null;
+                    StringBuilder sbInput = new StringBuilder();
+
+                    while ((readLine = br.readLine()) != null) {
+                        System.out.println(readLine);
+                        sbInput.append(readLine+"\n");
+                    }
+                    String result = sbInput.toString();
+                    JSONObject jObject = new JSONObject(result);
+//                    String AccessToken = jObject.getString("access_token");
+//                    String TokenType = jObject.getString("token_type");
+//                    String ExpiresIn = jObject.getString("expires_in");
+                    // 억세스 토큰을 SharePreference에 저장
+                    SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = Prefs.edit();
+                    editor.putString("AccessToken", jObject.getString("access_token"));
+                    editor.commit();
                     iRet = 0;
+//                    Log.d("OneClickDebug", AccessToken+TokenType+ExpiresIn);
                 }
                 else {
                     iRet = -1;

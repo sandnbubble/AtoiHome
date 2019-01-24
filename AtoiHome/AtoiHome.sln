@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtoiHomeServiceLib", "..\At
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AhoiHomeServiceSetup", "..\Setup\Setup.vdproj", "{22186F85-2234-4259-A391-C2B84AB79F6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneClickWeb", "..\OneClickWeb\OneClickWeb\OneClickWeb.csproj", "{CEEC0AE5-30E8-4BE3-A029-C78A95BD93A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BearerOAuthTokenLib", "..\BearerOAuthTokenLib\BearerOAuthTokenLib.csproj", "{54452464-A1A8-48DA-8E78-8F32C32AA886}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,10 +46,10 @@ Global
 		{22186F85-2234-4259-A391-C2B84AB79F6A}.Debug|Any CPU.ActiveCfg = Debug
 		{22186F85-2234-4259-A391-C2B84AB79F6A}.Release|Any CPU.ActiveCfg = Release
 		{22186F85-2234-4259-A391-C2B84AB79F6A}.Release|Any CPU.Build.0 = Release
-		{CEEC0AE5-30E8-4BE3-A029-C78A95BD93A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CEEC0AE5-30E8-4BE3-A029-C78A95BD93A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CEEC0AE5-30E8-4BE3-A029-C78A95BD93A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CEEC0AE5-30E8-4BE3-A029-C78A95BD93A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54452464-A1A8-48DA-8E78-8F32C32AA886}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54452464-A1A8-48DA-8E78-8F32C32AA886}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54452464-A1A8-48DA-8E78-8F32C32AA886}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54452464-A1A8-48DA-8E78-8F32C32AA886}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

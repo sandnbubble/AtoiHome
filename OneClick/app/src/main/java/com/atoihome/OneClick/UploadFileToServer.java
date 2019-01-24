@@ -1,4 +1,4 @@
-package com.atoihome.OneClick;
+package com.atoihome.oneclick;
 
 
 import android.app.ProgressDialog;
@@ -10,14 +10,11 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -135,7 +132,8 @@ public class UploadFileToServer  {
                 // WCF 서비스에서 업로드한 가입자가 누구인지 판단하도록 함
                 // 웹서버에서 토큰을 발행할 수 있게되면 변경할 것
                 SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-                connection.setRequestProperty("Authorization", Prefs.getString("Email", ""));
+                String strAuthorization = "bearer " +  Prefs.getString("AccessToken", "");
+                connection.setRequestProperty("Authorization", strAuthorization);
                 connection.setConnectTimeout(10000);
                 //creating new dataoutputstream
                 dataOutputStream = new DataOutputStream(connection.getOutputStream());

@@ -108,13 +108,23 @@
         <Image HorizontalAlignment="Left"
                Margin="0,10,0,0"
                Width="72"
-               Source="D:/Project/AtoiHome/AtoiHomeManager/Images/Info.png"
+               Source="/Images/Info.png"
                Stretch="Fill"
                Height="72"
                VerticalAlignment="Top" />
+        <TextBlock Margin="72,49.2,10,0"
+                   VerticalAlignment="Top"
+                   Foreground="#FFECAD25"
+                   TextWrapping="Wrap">
+            <Run Text="This is a user control. The animation uses the attached " />
+            <Run FontStyle="Italic"
+                 FontWeight="Bold"
+                 Text="BalloonShowing " />
+            <Run Text="event." />
+        </TextBlock>
         <Path Fill="#FFFFFFFF"
               Stretch="Fill"
-              Margin="72,106.233,34,0"
+              Margin="72,38.2,34,0"
               VerticalAlignment="Top"
               Height="1"
               Data="M26,107 L220.04123,107"
@@ -129,9 +139,9 @@
                 </LinearGradientBrush>
             </Path.Stroke>
         </Path>
-        <TextBlock Margin="72,28,10,0"
+        <TextBlock Margin="72,10,10,0"
                    VerticalAlignment="Top"
-                   Height="76"
+                   Height="23.2"
                    Text="{Binding Path=BalloonText, ElementName=me, Mode=Default}"
                    TextWrapping="Wrap"
                    Foreground="#FFECAD25"
@@ -141,7 +151,7 @@
                VerticalAlignment="Top"
                Width="16"
                Height="16"
-               Source="D:/Project/AtoiHome/AtoiHomeManager/Images/Close.png"
+               Source="/Images/Close.png"
                Stretch="Fill"
                Opacity="0.4"
                ToolTip="Close Balloon"

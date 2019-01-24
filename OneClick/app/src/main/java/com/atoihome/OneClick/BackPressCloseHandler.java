@@ -1,4 +1,4 @@
-package com.atoihome.OneClick;
+package com.atoihome.oneclick;
 
 import android.app.Activity;
 import android.widget.Toast

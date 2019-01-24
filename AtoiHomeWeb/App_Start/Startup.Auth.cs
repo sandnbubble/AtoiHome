@@ -7,10 +7,12 @@ using Microsoft.Owin.Security.Google;
 using Owin;
 using AtoiHomeWeb.Models;
 
+
 namespace AtoiHomeWeb
 {
     public partial class Startup
     {
+ 
         // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
@@ -34,7 +36,7 @@ namespace AtoiHomeWeb
                         validateInterval: TimeSpan.FromMinutes(30),
                         regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
                 }
-            });            
+            });
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
             // Enables the application to temporarily store user information when they are verifying the second factor in the two-factor authentication process.

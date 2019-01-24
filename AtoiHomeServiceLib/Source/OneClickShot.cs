@@ -4,6 +4,7 @@ using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Web;
+using System.Web.Security;
 using AtoiHomeServiceLib.Source.Utility;
 
 namespace AtoiHomeServiceLib
@@ -101,10 +102,17 @@ namespace AtoiHomeServiceLib
         {
             try
             {
+                string Email, Password;
+                if (CheckAccessCore(out Email) == false)
+                {
+                    WebOperationContext ctx = WebOperationContext.Current;
+                    ctx.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.NonAuthoritativeInformation;
+                    return Message.CreateMessage(MessageVersion.None, "UploadImage", "Failure").ToString();
+                }
+
                 if (strFilename == null)
                     return Message.CreateMessage(MessageVersion.None, "UploadImage", "Filename is null").ToString();
 
-                string Email = GetRequestHeaderProperty("Authorization");
 
                 string szFilePath = SZ_BASEDIR + strFilename; ;
                 if (System.IO.File.Exists(szFilePath)) System.IO.File.Delete(szFilePath);
@@ -169,6 +177,29 @@ namespace AtoiHomeServiceLib
                 Console.WriteLine(headerName + ": " + headers[headerName]);
             }
             return strRet;
+        }
+
+        
+
+        protected bool CheckAccessCore(out string Email)
+        {
+            //Extract the Authorization header, and parse out the credentials converting the Base64 string:  
+            var authHeader = WebOperationContext.Current.IncomingRequest.Headers["Authorization"];
+            if ((authHeader != null) && (authHeader != string.Empty))
+            {
+                var strToken = authHeader.Substring(7);
+                BearerOAuthTokenDeserializer.AuthenticationTicket Token = BearerOAuthTokenLib.OAuthTokeAPI.DeserializeToken(strToken);
+                Email = BearerOAuthTokenLib.OAuthTokeAPI.FindValueByKey(Token, "sub");
+                string role = BearerOAuthTokenLib.OAuthTokeAPI.FindValueByKey(Token, "role");
+                return true;
+            }
+            else
+            {
+                //No authorization header was provided, so challenge the client to provide before proceeding:  
+                WebOperationContext.Current.OutgoingResponse.Headers.Add("WWW-Authenticate: Basic realm=\"MyWCFService\"");
+                //Throw an exception with the associated HTTP status code equivalent to HTTP status 401  
+                throw new WebFaultException(HttpStatusCode.Unauthorized);
+            }
         }
     }
 }

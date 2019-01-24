@@ -1,11 +1,10 @@
-package com.atoihome.OneClick;
+package com.atoihome.oneclick;
 
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,7 +17,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.provider.Browser;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -35,6 +33,11 @@ public class ScreenshotDetectionService extends Service {
     private final IBinder binder = new LocalBinder();
     // Registered callbacks
     private ServiceCallbacks serviceCallbacks;
+    private static String AccessToken = "";
+
+    public void SetAccessString (String accessToken) {
+        AccessToken = accessToken;
+    }
 
     // Class used for the client Binder.
     public class LocalBinder extends Binder {
@@ -81,33 +84,7 @@ public class ScreenshotDetectionService extends Service {
     }
 
 
-    public String getTopActivtyFromLolipopOnwards() {
-        String topPackageName;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            UsageStatsManager mUsageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
-            long time = System.currentTimeMillis();
-            // We get usage stats for the last 10 seconds
-            List <UsageStats> stats = mUsageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - 1000 * 10, time);
-            // Sort the stats by the last time used
-            if (stats != null) {
-                SortedMap< Long, UsageStats > mySortedMap = new TreeMap< Long, UsageStats >();
-                for (UsageStats usageStats: stats) {
-                    mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
-                }
-                if (mySortedMap != null && !mySortedMap.isEmpty()) {
-                    topPackageName = mySortedMap.get(mySortedMap.lastKey()).getPackageName();
-                    Log.e("TopPackage Name", topPackageName);
-                    return topPackageName;
-                }
-            }
-        }
-        return "NotFound";
-    }
-
     private void onScreenshotCaptured(String strFilePath) {
-//        String strTopActivityPackagename = getTopActivtyFromLolipopOnwards();
-//        Toast.makeText(getApplicationContext(), strTopActivityPackagename, LENGTH_SHORT).show();
-
         SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (Prefs.getBoolean("AutomaticUpload", false)){
             UploadFileToServer uploadImage = new UploadFileToServer(getApplicationContext(), false);
@@ -164,33 +141,7 @@ public class ScreenshotDetectionService extends Service {
         }
     };
 
-
-    private ContentObserver browserObserver = new ContentObserver(new Handler()) {
-        @Override
-        public boolean deliverSelfNotifications() {
-            return super.deliverSelfNotifications();
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            super.onChange(selfChange);
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            super.onChange(selfChange, uri);
-            if (isReadExternalStoragePermissionGranted()) {
-                String path = getFilePathFromContentResolver(uri);
-                if (isScreenshotPath(path)) {
-                    onScreenshotCaptured(path);
-                }
-            } else {
-                onScreenshotCapturedWithDeniedPermission();
-            }
-        }
-    };
-
-    private boolean isReadExternalStoragePermissionGranted() {
+   private boolean isReadExternalStoragePermissionGranted() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -221,7 +172,6 @@ public class ScreenshotDetectionService extends Service {
 
     public String getHostServiceURL() {
         SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String strHostURL = Prefs.getString("HostURL", "");
-        return "http://"+strHostURL + "/OneClickShot/WEB";
+        return "http://"+Prefs.getString("ServiceHost", "") + "/OneClickShot/WEB";
     }
 }

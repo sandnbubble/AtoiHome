@@ -1,4 +1,4 @@
-package com.atoihome.OneClick;
+package com.atoihome.oneclick;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -78,81 +78,69 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 //        Toast.makeText(this, "invoked oncreate", LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-        startActivity(intent);
-//        Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
-//        startActivity(intent);
-
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        //환경설정
         checkReadExternalStoragePermission();
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
-
-        ImageButton buttonUpload = (ImageButton) findViewById(R.id.buttonUpload);
-        buttonUpload.setOnClickListener(this);
-
         backPressCloseHandler = new BackPressCloseHandler(this);
         intentForService = new Intent(this, ScreenshotDetectionService.class);
 
+        //메인화면구성
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        ImageButton buttonUpload = (ImageButton) findViewById(R.id.buttonUpload);
+        buttonUpload.setOnClickListener(this);
+
+        //툴바를 액션바로 교체사용
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        // 캡처 모니터서비스가 실행 중이라면
+        // 로그인하여 서비스를 사용중인 상태에서 시스템이나 사용자에 의해
+        // 메인엑티비티가 종료된 경우를 체크하기 위함
         if (isServiceRunning(ScreenshotDetectionService.class)){
+            // 이 변수를 InstanceState를 사용해 자동저장하도록 할 예정
             bServiceStarted = true;
+        }
+        else {
+            // 앱이 처음 실행된 경우 억세스토큰이 있으면 인증서버로 ValidateToken을 요청해서
+            // 토큰의 유효성 검증
+            String strAccessToken = GetPreferenceValue(getString(R.string.app_AccessToken));
+            Integer nRet = NetworkUtils.ValidateTokenRequest(strAccessToken, this);
+            switch(nRet) {
+                case 200:
+                    break;
+                case 401:
+                    Toast.makeText(this, "Authorization has been denied for this request", LENGTH_SHORT).show();
+                default:
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(intent);
+                    Toast.makeText(this, "Error code = " + nRet, LENGTH_SHORT).show();
+            }
         }
         Log.d("Debug", "***************Started service in onCreate");
     }
 
-    Switch switchCtrlService;
-
-    @Override
-    public boolean  onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
+    public String GetPreferenceValue(String strKey){
         SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (bServiceStarted){
-//            Toast.makeText(this, "Invoked onPrepareOutionsMenu (bServiceStarted is true)", LENGTH_SHORT).show();
-            switchCtrlService.setChecked(true);
-            return true;
-        }
-        else if(Prefs.getBoolean("AutomaticStart", false) ) {
-            switchCtrlService.setChecked(true);
-        }
-        else{
-//            Toast.makeText(this, "Invoked onPrepareOutionsMenu (bServiceStarted is false)", LENGTH_SHORT).show();
-        }
-        return true;
+        return Prefs.getString(strKey, "");
     }
 
+    Switch CtrlServiceInActionBar;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //return super.onCreateOptionsMenu(menu);
         try {
             getMenuInflater().inflate(R.menu.menu, menu);
             MenuItem item = (MenuItem) menu.findItem(R.id.action_ctrlservice);
-            item.setActionView(R.layout.switch_layout);
-            switchCtrlService = item.getActionView().findViewById(R.id.switchActionBar);
-
-            switchCtrlService.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            item.setActionView(R.layout.ctrlservice_layout);
+            CtrlServiceInActionBar = item.getActionView().findViewById(R.id.CtrlServiceActionBar);
+            CtrlServiceInActionBar.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
-                        startService(intentForService);
-                        if (!bound) {
-                            bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
-                        }
-                        bServiceStarted = true;
-//                        Toast.makeText(getApplication(), "ON", Toast.LENGTH_SHORT).show();
+                        startScreenshotService();
                     } else {
-                        if (bound) {
-                            sdService.setCallbacks(null); // unregister
-                            unbindService(serviceConnection);
-                            bound = false;
-                        }
-                        stopService(intentForService);
-                        bServiceStarted = false;
-//                          Toast.makeText(getApplication(), "OFF", Toast.LENGTH_SHORT).show();
+                        stopScreenshotService();
                     }
                 }
             });
@@ -163,6 +151,24 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         return false;
     }
 
+    @Override
+    public boolean  onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (bServiceStarted){
+//            Toast.makeText(this, "Invoked onPrepareOutionsMenu (bServiceStarted is true)", LENGTH_SHORT).show();
+            CtrlServiceInActionBar.setChecked(true);
+            return true;
+        }
+        else {
+            if (Prefs.getBoolean("AutomaticStart", false)) {
+                CtrlServiceInActionBar.setChecked(true);
+            } else {
+                CtrlServiceInActionBar.setChecked(false);
+            }
+        }
+        return true;
+    }
 
 
     @Override
@@ -227,17 +233,40 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         //super.onBackPressed(); 앱종료가 두번 수행되서는 안됨
         if (backPressCloseHandler.onBackPressed() == true) {
 //            서비스와의 바인딩이 끊어지지 않으면 stopService가 종료되지 않음
-            if (bound) {
-                sdService.setCallbacks(null); // unregister
-                unbindService(serviceConnection);
-                bound = false;
-            }
-            stopService(intentForService);
+            stopScreenshotService();
             finish();
 //            Toast.makeText(this, "Invoked exit", LENGTH_SHORT).show();
         }
     }
 
+    // 사용자나 시스템에 의해서 강제 종료될 때
+    // 바인딩과 서비스를 종료처리한다. 이렇게 하지 않을 경우 서비스가 종료되지 않고
+    // 살아있기 때문에 캡처는 할 수 있지만 메인엑티비티와 서비스의 모든 변수가 null로
+    // 되어 로직이 복잡해진다. preference를 이용해서 로직으로 처리했지만 사용자의 종료를
+    // 인정하는것이 바람직하다. 옵션으로 사용자의 판단에 맡기는것이 낫을 수도 있겠다.
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopScreenshotService();
+    }
+
+    private void startScreenshotService(){
+        startService(intentForService);
+        if (!bound) {
+            bindService(intentForService, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
+        bServiceStarted = true;
+    }
+
+    private void stopScreenshotService(){
+        if (bound) {
+            sdService.setCallbacks(null); // unregister
+            unbindService(serviceConnection);
+            bound = false;
+        }
+        stopService(intentForService);
+        bServiceStarted = false;
+    }
 
     protected boolean drawImage(String strPath) {
         File imgFile = new File(strPath);
@@ -250,8 +279,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         return false;
     }
 
-
-
     @Override
 //    Service와 ManinActivity간의 IPC를 bind의 callback으로 구현
 //    Service에서 이미지파일의 경로를 MainActivity로 전달
@@ -261,8 +288,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             drawImage(strImagePath);
         }
     }
-
-
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
