@@ -32,6 +32,8 @@ import java.net.URL;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
@@ -85,8 +87,33 @@ public class LoginActivity extends AppCompatActivity {
 
         // TODO: Implement your own authentication logic here.
         String UserInfo = "grant_type=password&username="+email+"&password="+password;
-        HttpPost InvokeSignIn = new HttpPost();
-        InvokeSignIn.execute("https://www.atoihome.site/token", UserInfo);
+        NetworkUtils.AsyncResponse asyncResponse =    new NetworkUtils.AsyncResponse(){
+            @Override
+            public void processFinish(Object msgRet) {
+                try{
+                    NetworkUtils.HttpMessage ResponseMsg = (NetworkUtils.HttpMessage)msgRet;
+                    Toast.makeText(getApplicationContext(), "RetCode = " + ResponseMsg.iRet + " "+ResponseMsg.Message, LENGTH_SHORT).show();
+                    if (ResponseMsg.iRet == 200){
+                        JSONObject jObject = new JSONObject(ResponseMsg.Message);
+                        String AccessToken = jObject.getString("access_token");
+                        String TokenType = jObject.getString("token_type");
+                        String ExpiresIn = jObject.getString("expires_in");
+//                        억세스 토큰을 SharePreference에 저장
+                        SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                        SharedPreferences.Editor editor = Prefs.edit();
+                        editor.putString("AccessToken", jObject.getString("access_token"));
+                        editor.commit();
+                        onLoginSuccess();
+                    }else{
+                        onLoginFailed();
+                    }
+                }catch (Exception e){
+                    Toast.makeText(getBaseContext(), e.getMessage(), LENGTH_SHORT);
+                }
+            }
+        };
+        NetworkUtils networkUtils = new NetworkUtils();
+        networkUtils.getTokenRequest(UserInfo, this, asyncResponse);
     }
 
 
@@ -120,6 +147,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("Password", _passwordText.getText().toString());
         editor.putString("AuthServer", getString(R.string.AuthServer));
         editor.commit();
+        com.atoihome.oneclick.MainActivity.startProcess(true);
 
         finish();
     }
@@ -127,11 +155,11 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
         _loginButton.setEnabled(true);
+        com.atoihome.oneclick.MainActivity.startProcess(false);
     }
 
     public boolean validate() {
         boolean valid = true;
-
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
@@ -142,169 +170,13 @@ public class LoginActivity extends AppCompatActivity {
             _emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            _passwordText.setError("between 4 and 10 alphanumeric characters");
+        if (password.isEmpty() || password.length() < 4 || password.length() > 14) {
+            _passwordText.setError("between 4 and 14 alphanumeric characters");
             valid = false;
         } else {
             _passwordText.setError(null);
         }
 
         return valid;
-    }
-
-    protected class  HttpGetTest extends AsyncTask<String, Void, String> {
-        private String result;
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-
-        @Override protected void onPreExecute() { super.onPreExecute(); }
-
-        @Override
-        protected void onPostExecute(String result)
-        {
-            super.onPostExecute(result);
-
-            if(result != null){
-                Log.d("ASYNC", "result = " + result);
-            }
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                URL url = new URL(params[0]+"GetData?arg=this is echo string written by atoi");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setDoInput(true);
-                InputStream is = connection.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-
-                String readLine = null;
-                StringBuilder sbInput = new StringBuilder();
-
-                while ((readLine = br.readLine()) != null) {
-                    System.out.println(readLine);
-                    sbInput.append(readLine+"\n");
-                }
-                result = sbInput.toString();
-                br.close();
-                return result;
-
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
-    public class HttpPost extends AsyncTask<String, String, Integer> {
-        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dark_Dialog);
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-
-        @Override protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Authenticating...");
-            progressDialog.show();
-        }
-
-        @Override protected void onProgressUpdate(String... progress) {
-        }
-
-        @Override
-        protected void onPostExecute(Integer iRet) {
-            super.onPostExecute(iRet);
-            if (iRet == 0) {
-                onLoginSuccess();
-            }
-            else{
-                onLoginFailed();
-            }
-            progressDialog.dismiss();
-        }
-
-        @Override
-        protected Integer doInBackground(String... params) {
-
-            Integer iRet=0;
-            int serverResponseCode = 0;
-
-            HttpURLConnection connection;
-            DataOutputStream dataOutputStream;
-
-            try {
-                URL url = new URL(params[0]);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);//Allow Inputs
-                connection.setDoOutput(true);//Allow Outputs
-                connection.setUseCaches(false);//Don't use a cached Copy
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                connection.setConnectTimeout(10000);
-
-                OutputStream os = connection.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-
-                writer.write(params[1]);
-                writer.flush();
-                writer.close();
-                os.close();
-
-                serverResponseCode = connection.getResponseCode();
-                final String serverResponseMessage = connection.getResponseMessage();
-
-                Log.i("Debug", "Server Response is: " + serverResponseMessage + ": " + serverResponseCode);
-
-                //response code of 200 indicates the server status OK
-                if (serverResponseCode == 200) {
-                    InputStream is = connection.getInputStream();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
-
-                    String readLine = null;
-                    StringBuilder sbInput = new StringBuilder();
-
-                    while ((readLine = br.readLine()) != null) {
-                        System.out.println(readLine);
-                        sbInput.append(readLine+"\n");
-                    }
-                    String result = sbInput.toString();
-                    JSONObject jObject = new JSONObject(result);
-//                    String AccessToken = jObject.getString("access_token");
-//                    String TokenType = jObject.getString("token_type");
-//                    String ExpiresIn = jObject.getString("expires_in");
-                    // 억세스 토큰을 SharePreference에 저장
-                    SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                    SharedPreferences.Editor editor = Prefs.edit();
-                    editor.putString("AccessToken", jObject.getString("access_token"));
-                    editor.commit();
-                    iRet = 0;
-//                    Log.d("OneClickDebug", AccessToken+TokenType+ExpiresIn);
-                }
-                else {
-                    iRet = -1;
-                }
-            } catch (FileNotFoundException e) {
-                iRet = -1;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                iRet = -2;
-            } catch (IOException e) {
-                iRet = -3;
-                e.printStackTrace();
-            } catch (Exception e) {
-                iRet = -4;
-                e.printStackTrace();
-            }
-            return iRet;
-        }
     }
 }

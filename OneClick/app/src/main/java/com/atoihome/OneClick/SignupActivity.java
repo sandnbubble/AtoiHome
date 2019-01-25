@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
@@ -26,6 +28,8 @@ import java.net.URL;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 public class SignupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
@@ -90,10 +94,33 @@ public class SignupActivity extends AppCompatActivity {
 
         // TODO: Implement your own signup logic here.
         String UserInfo = "{\"Email\":\""+email+"\",\"Password\":\"" + password+"\",\"ConfirmPassword\":\""+ reEnterPassword+"\"}";
-        SignUp InvokeSignUp = new SignUp();
-        InvokeSignUp.execute("https://www.atoihome.site/api/restaccount/signup", UserInfo);
+        NetworkUtils.AsyncResponse asyncResponse =    new NetworkUtils.AsyncResponse(){
+            @Override
+            public void processFinish(Object msgRet) {
+                try{
+                    NetworkUtils.HttpMessage ResponseMsg = (NetworkUtils.HttpMessage)msgRet;
+                    Toast.makeText(getApplicationContext(), "RetCode = " + ResponseMsg.iRet + " "+ResponseMsg.Message, LENGTH_SHORT).show();
+                    if (ResponseMsg.iRet == 200){
+                        onSignupSuccess();
+                    }else{
+                        onSignupFailed();
+                    }
+                }catch (Exception e){
+                    Toast.makeText(getBaseContext(), e.getMessage(), LENGTH_SHORT);
+                }
+            }
+        };
+        NetworkUtils networkUtils = new NetworkUtils();
+        networkUtils.signupRequest(UserInfo, this, asyncResponse);
+
     }
 
+    @Override
+    public void onBackPressed() {
+        // Disable going back to the MainActivity
+        //현재 Task가 백그라운드로 이동하게된다.
+        moveTaskToBack(true);
+    }
 
     public void onSignupSuccess() {
         _signupButton.setEnabled(true);
@@ -107,12 +134,43 @@ public class SignupActivity extends AppCompatActivity {
         editor.putString("Password", _passwordText.getText().toString());
         editor.putString("HostURL", "www.atoihome.site");
         editor.commit();
+
+        String UserInfo = "grant_type=password&username="+_emailText.getText().toString()+"&password="+_passwordText.getText().toString();
+        NetworkUtils.AsyncResponse asyncResponse =    new NetworkUtils.AsyncResponse(){
+            @Override
+            public void processFinish(Object msgRet) {
+                try{
+                    NetworkUtils.HttpMessage ResponseMsg = (NetworkUtils.HttpMessage)msgRet;
+                    Toast.makeText(getApplicationContext(), "RetCode = " + ResponseMsg.iRet + " "+ResponseMsg.Message, LENGTH_SHORT).show();
+                    if (ResponseMsg.iRet == 200){
+                        JSONObject jObject = new JSONObject(ResponseMsg.Message);
+                        String AccessToken = jObject.getString("access_token");
+                        String TokenType = jObject.getString("token_type");
+                        String ExpiresIn = jObject.getString("expires_in");
+//                        억세스 토큰을 SharePreference에 저장
+                        SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                        SharedPreferences.Editor editor = Prefs.edit();
+                        editor.putString("AccessToken", jObject.getString("access_token"));
+                        editor.commit();
+                        com.atoihome.oneclick.MainActivity.startProcess(true);
+
+                    }else{
+                        com.atoihome.oneclick.MainActivity.startProcess(false);
+                    }
+                }catch (Exception e){
+                    Toast.makeText(getBaseContext(), e.getMessage(), LENGTH_SHORT);
+                }
+            }
+        };
+        NetworkUtils networkUtils = new NetworkUtils();
+        networkUtils.getTokenRequest(UserInfo, this, asyncResponse);
         finish();
     }
 
     public void onSignupFailed() {
         Toast.makeText(getBaseContext(), "Creating failed", Toast.LENGTH_LONG).show();
         _signupButton.setEnabled(true);
+        com.atoihome.oneclick.MainActivity.startProcess(false);
     }
 
     public boolean validate() {
@@ -169,87 +227,5 @@ public class SignupActivity extends AppCompatActivity {
             _reEnterPasswordText.setError(null);
         }
         return valid;
-    }
-    public class SignUp extends AsyncTask<String, String, Integer> {
-        final ProgressDialog progressDialog = new ProgressDialog(SignupActivity.this, R.style.AppTheme_Dark_Dialog);
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-
-        @Override protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Creating account...");
-            progressDialog.show();
-        }
-
-        @Override protected void onProgressUpdate(String... progress) {
-        }
-
-        @Override
-        protected void onPostExecute(Integer iRet) {
-            super.onPostExecute(iRet);
-            if (iRet == 0) {
-                onSignupSuccess();
-            }
-            else{
-                onSignupFailed();
-            }
-            progressDialog.dismiss();
-        }
-
-        @Override
-        protected Integer doInBackground(String... params) {
-
-            Integer iRet=0;
-            int serverResponseCode = 0;
-
-            HttpURLConnection connection;
-            DataOutputStream dataOutputStream;
-
-            try {
-                URL url = new URL(params[0]);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);//Allow Inputs
-                connection.setDoOutput(true);//Allow Outputs
-                connection.setUseCaches(false);//Don't use a cached Copy
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setConnectTimeout(10000);
-
-                OutputStream os = connection.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-
-                writer.write(params[1]);
-                writer.flush();
-                writer.close();
-                os.close();
-                serverResponseCode = connection.getResponseCode();
-                final String serverResponseMessage = connection.getResponseMessage();
-
-                Log.i("Debug", "Server Response is: " + serverResponseMessage + ": " + serverResponseCode);
-
-                //response code of 200 indicates the server status OK
-                if (serverResponseCode == 200) {
-                    iRet = 0;
-                }
-                else {
-                    iRet = -1;
-                }
-            } catch (FileNotFoundException e) {
-                iRet = -1;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                iRet = -2;
-            } catch (IOException e) {
-                iRet = -3;
-                e.printStackTrace();
-            } catch (Exception e) {
-                iRet = -4;
-                e.printStackTrace();
-            }
-            return iRet;
-        }
     }
 }

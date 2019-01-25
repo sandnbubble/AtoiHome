@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE_PERMISSION = 3009;
     private BackPressCloseHandler backPressCloseHandler;
     private Intent intentForService;
-    private Intent intentForSetting;
 
     public String strScreenshotImagePath;
     private ScreenshotDetectionService sdService;
@@ -73,9 +72,19 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     };
 
 
+    private static boolean mbSigned = false;
+    public static void startProcess(boolean bSigned){
+        mbSigned = bSigned;
+        if (bSigned){
+            CtrlServiceInActionBar.setChecked(true);
+        }else{
+            CtrlServiceInActionBar.setChecked(false);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        Toast.makeText(this, "invoked oncreate", LENGTH_SHORT).show();
+        Toast.makeText(this, "invoked oncreate", LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //환경설정
@@ -105,17 +114,21 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             // 앱이 처음 실행된 경우 억세스토큰이 있으면 인증서버로 ValidateToken을 요청해서
             // 토큰의 유효성 검증
             String strAccessToken = GetPreferenceValue(getString(R.string.app_AccessToken));
-            Integer nRet = NetworkUtils.ValidateTokenRequest(strAccessToken, this);
-            switch(nRet) {
-                case 200:
-                    break;
-                case 401:
-                    Toast.makeText(this, "Authorization has been denied for this request", LENGTH_SHORT).show();
-                default:
-                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                    startActivity(intent);
-                    Toast.makeText(this, "Error code = " + nRet, LENGTH_SHORT).show();
-            }
+            NetworkUtils.AsyncResponse asyncResponse =    new NetworkUtils.AsyncResponse(){
+                @Override
+                public void processFinish(Object msgRet) {
+                    NetworkUtils.HttpMessage ResponseMsg = (NetworkUtils.HttpMessage)msgRet;
+                    Toast.makeText(getApplicationContext(), "RetCode = " + ResponseMsg.iRet + " "+ResponseMsg.Message, LENGTH_SHORT).show();
+                    if (ResponseMsg.iRet == 200){
+                        startProcess(true);
+                    }else{
+                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivity(intent);
+                    }
+                }
+            };
+            NetworkUtils networkUtils = new NetworkUtils();
+            networkUtils.validateTokenRequest(strAccessToken, this, asyncResponse);
         }
         Log.d("Debug", "***************Started service in onCreate");
     }
@@ -125,7 +138,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         return Prefs.getString(strKey, "");
     }
 
-    Switch CtrlServiceInActionBar;
+    static Switch  CtrlServiceInActionBar;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //return super.onCreateOptionsMenu(menu);
@@ -137,10 +150,12 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             CtrlServiceInActionBar.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        startScreenshotService();
-                    } else {
-                        stopScreenshotService();
+                    if (mbSigned){
+                        if (isChecked) {
+                            startScreenshotService();
+                        } else {
+                            stopScreenshotService();
+                        }
                     }
                 }
             });
@@ -176,8 +191,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         //return super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.action_settings:
-                intentForSetting = new Intent(this, SettingActivity.class);
-                startActivity(intentForSetting);
+                startActivity(new Intent(this, SettingActivity.class));
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
@@ -239,11 +253,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         }
     }
 
-    // 사용자나 시스템에 의해서 강제 종료될 때
-    // 바인딩과 서비스를 종료처리한다. 이렇게 하지 않을 경우 서비스가 종료되지 않고
-    // 살아있기 때문에 캡처는 할 수 있지만 메인엑티비티와 서비스의 모든 변수가 null로
-    // 되어 로직이 복잡해진다. preference를 이용해서 로직으로 처리했지만 사용자의 종료를
-    // 인정하는것이 바람직하다. 옵션으로 사용자의 판단에 맡기는것이 낫을 수도 있겠다.
     @Override
     protected void onDestroy() {
         super.onDestroy();
