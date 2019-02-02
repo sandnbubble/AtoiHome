@@ -33,11 +33,7 @@ import java.io.File;
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class MainActivity extends AppCompatActivity  implements View.OnClickListener, ServiceCallbacks {
-
-    // Google 인증
-
     private static final String TAG = MainActivity.class.getSimpleName();
-
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE_PERMISSION = 3009;
     private BackPressCloseHandler backPressCloseHandler;
     private Intent intentForService;
@@ -46,7 +42,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     private ScreenshotDetectionService sdService;
 
     private boolean bound = false;
-    private boolean bIsVisibleActivity = false;
 
     private boolean bServiceStarted = false;
 
@@ -70,7 +65,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             bound = false;
         }
     };
-
 
     private static boolean mbSigned = false;
     public static void startProcess(boolean bSigned){
@@ -113,22 +107,24 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         else {
             // 앱이 처음 실행된 경우 억세스토큰이 있으면 인증서버로 ValidateToken을 요청해서
             // 토큰의 유효성 검증
-            String strAccessToken = GetPreferenceValue(getString(R.string.app_AccessToken));
+            // 유효성 검증이 완료된 후 실행되는 delagator
             NetworkUtils.AsyncResponse asyncResponse =    new NetworkUtils.AsyncResponse(){
                 @Override
                 public void processFinish(Object msgRet) {
                     NetworkUtils.HttpMessage ResponseMsg = (NetworkUtils.HttpMessage)msgRet;
                     Toast.makeText(getApplicationContext(), "RetCode = " + ResponseMsg.iRet + " "+ResponseMsg.Message, LENGTH_SHORT).show();
+                    // 토큰이 유효하면 서비스를 시작한다.
                     if (ResponseMsg.iRet == 200){
                         startProcess(true);
                     }else{
+                        // 토큰이 유효하지 않거나 네트워크 장애가 발생하면 로그인 엑티비티를 실행한다.
                         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                         startActivity(intent);
                     }
                 }
             };
-            NetworkUtils networkUtils = new NetworkUtils();
-            networkUtils.validateTokenRequest(strAccessToken, this, asyncResponse);
+            NetworkUtils networkUtils = new NetworkUtils(this);
+            networkUtils.validateTokenRequest(asyncResponse);
         }
         Log.d("Debug", "***************Started service in onCreate");
     }
@@ -201,15 +197,33 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         }
     }
 
+    // 메인화면 엘리먼트의 클릭 이벤트 처리
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            //최근 캡처된 이미지를 수동으로 업로드 할 때 사용하는 버튼의 클릭 이벤트 처리
+            //설정에서 자동업로드 옵션을 사용하지 않도록 설정했들 때 카톡등의 서비스제공자로
+            //이미지를 전송하고 수동으로 업로드할 수도 있다.
             case R.id.buttonUpload:
                 if (strScreenshotImagePath == null){
                     return;
                 }
-                UploadFileToServer uploadFile = new UploadFileToServer(this, true);
-                uploadFile.uploadFileToServer(sdService.getHostServiceURL(), strScreenshotImagePath);
+                NetworkUtils.AsyncResponse asyncResponse =    new NetworkUtils.AsyncResponse(){
+                    @Override
+                    public void processFinish(Object msgRet) {
+                        try{
+                            NetworkUtils.HttpMessage ResponseMsg = (NetworkUtils.HttpMessage)msgRet;
+                            Toast.makeText(getApplicationContext(), "RetCode = " + ResponseMsg.iRet + " "+ResponseMsg.Message, LENGTH_SHORT).show();
+                            if (ResponseMsg.iRet == 200){
+                            }else{
+                            }
+                        }catch (Exception e){
+                            Toast.makeText(getApplicationContext(), e.getMessage(), LENGTH_SHORT);
+                        }
+                    }
+                };
+                NetworkUtils networkUtils = new NetworkUtils(this);
+                networkUtils.uploadFileRequest(strScreenshotImagePath, asyncResponse);
                 break;
             default:
                 break;
@@ -221,7 +235,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
         super.onStart();
 
-        bIsVisibleActivity = true;
+//        bIsVisibleActivity = true;
         if (strScreenshotImagePath != null) {
             drawImage(strScreenshotImagePath);
         }
@@ -231,7 +245,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     @Override
     protected void onStop() {
         super.onStop();
-        bIsVisibleActivity = false;
+//        bIsVisibleActivity = false;
 //        Toast.makeText(this, "Invoked onStart", LENGTH_SHORT).show();
     }
 
@@ -279,7 +293,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
     protected boolean drawImage(String strPath) {
         File imgFile = new File(strPath);
-
         if (imgFile.exists()) {
             Bitmap bitmapScreenshotImage = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             ImageView imageview = (ImageView) findViewById(R.id.imageView);
@@ -293,7 +306,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 //    Service에서 이미지파일의 경로를 MainActivity로 전달
     public void setScreenshotImagePath(String strImagePath) {
         strScreenshotImagePath = strImagePath;
-        if (bIsVisibleActivity) {
+        ActivityManager mActivityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+        String strClassName = mActivityManager.getRunningTasks(1).get(0).topActivity.getClassName();
+//        Toast.makeText(this, strClassName, LENGTH_SHORT).show();
+        if (strClassName.equals(getString(R.string.MainActivity))) {
             drawImage(strImagePath);
         }
     }

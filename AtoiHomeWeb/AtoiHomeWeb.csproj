@@ -319,11 +319,6 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\OneClick\Index.cshtml" />
-    <Content Include="Views\UploadImageViewModels\Create.cshtml" />
-    <Content Include="Views\UploadImageViewModels\Delete.cshtml" />
-    <Content Include="Views\UploadImageViewModels\Details.cshtml" />
-    <Content Include="Views\UploadImageViewModels\Edit.cshtml" />
-    <Content Include="Views\UploadImageViewModels\Index.cshtml" />
     <Content Include="Views\UploadImageModels\Create.cshtml" />
     <Content Include="Views\UploadImageModels\Delete.cshtml" />
     <Content Include="Views\UploadImageModels\Details.cshtml" />

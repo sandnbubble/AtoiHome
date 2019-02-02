@@ -32,12 +32,7 @@ namespace AtoiHomeServiceLib
 
             try
             {
-#if _EXTERNAL_MARIADB
-                Source.Utility.DBApi.Connect("SERVER=localhost; DATABASE=atoihome; UID=root; PASSWORD=gksrmf65!!;");
-                bool bUserValidation = Source.Utility.DBApi.ValidateUser(e.UserId, e.Password);
-#else
                 bool bUserValidation = true;
-#endif
                 if (bUserValidation)
                 {
                     // 이전 연결됐던 클라이언트가 비정상종료되고 다시 연결하려고 할때를 고려해서
@@ -106,9 +101,9 @@ namespace AtoiHomeServiceLib
         /// NotifyService에 연결된 모든 클라이언트에게 메시지 브로드캐스팅
         /// </summary>
         /// <param name="action"></param> 잘 모르겠음
-        void CallbackAllClients(Action<ICallbackService> action)
+        //public void CallbackAllClients(Action<ICallbackService> action)
+        public void CallbackAllClients(OneClickShotEventArgs e)
         {
-            //Program.log.DebugFormat("Invoked CallbackAllClients");
             for (int i = Clients.Count - 1; i >= 0; i--)
             {
                 ICallbackService callback = Clients[i].Callback;
@@ -117,9 +112,10 @@ namespace AtoiHomeServiceLib
                     try
                     {
                         // callback.SendCallbackMessage를 실행하는 것인데 문법이 낯설어서 :(
-                        action(callback);
+                        callback.SendCallbackMessage(e);
+                        //action(callback);
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
                         Clients.RemoveAt(i);
                     }
@@ -136,25 +132,28 @@ namespace AtoiHomeServiceLib
         /// <param name="e"></param>
         public void SendMessage(OneClickShotEventArgs e)
         {
-            if (e.MessageType == MessageType.NOTIFYSERVICE_CLOSING)
-                // 서비스 중지하기전에 클라이언트들에게 메시지 브로드캐스팅
-                CallbackAllClients(client => client.SendCallbackMessage(e));
-            else
+            switch (e.MessageType)
             {
-                // OneClickShot 서비스에서 전달된 정보로 Notify 서비스에 연결된 클라이언트 중 
-                // 사용자 정보가 일치하는 클라이언트에게 메시지 전송
-                ClientInfo Client = Clients.Find(x => x.UserId.Equals(e.UserId));
-                try
-                {
-                    if (Client != null)
+                // 클라이언트에서 환경설정 정보를 보낸 경우
+                case MessageType.SET_ENV:
+                    OneClickShotEvent(this, e);
+                    break;
+                default:
+                    // OneClickShot 서비스에서 전달된 정보로 Notify 서비스에 연결된 클라이언트 중 
+                    // 사용자 정보가 일치하는 클라이언트에게 메시지 전송
+                    ClientInfo Client = Clients.Find(x => x.UserId.Equals(e.UserId));
+                    try
                     {
-                        Client.Callback.SendCallbackMessage(e);
+                        if (Client != null)
+                        {
+                            Client.Callback.SendCallbackMessage(e);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Clients.Remove(Client);
-                }
+                    catch (Exception ex)
+                    {
+                        Clients.Remove(Client);
+                    }
+                    break;
             }
         }
     }

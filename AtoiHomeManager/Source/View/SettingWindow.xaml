@@ -1,0 +1,46 @@
+﻿<!--<Window x:Class="AtoiHomeManager.Source.View.SettingWindow"-->
+<UserControl x:Class="AtoiHomeManager.Source.View.SettingWindow"    
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:AtoiHomeManager.Source.View"
+    xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+    xmlns:s="clr-namespace:System;assembly=mscorlib"
+    Dialog:DialogParticipation.Register="{Binding}"             
+    mc:Ignorable="d"
+    Height="88.667" Width="400">
+
+    <UserControl.Resources>
+        <s:Boolean x:Key="True">True</s:Boolean>
+        <s:Boolean x:Key="False">False</s:Boolean>
+    </UserControl.Resources>
+    
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <Label Margin ="0,0,0,0" Content="Choose upload folder" Foreground="Black" Background="White"/>
+            <Border Margin="0, 5, 0, 0">
+                <StackPanel Orientation="Horizontal">
+                    <Label 
+                        Margin ="0,0,0,0" BorderThickness="1" BorderBrush="Black" Name="LabelUploadPath" 
+                        Foreground="White" Background="Black"
+                        Content="{Binding UploadPath}"
+                        Width="380"></Label>
+                    <Button Command="{Binding ChooseImagFolder}" CommandParameter="{Binding}" Background="{Binding DefaultColor}" Content="..."
+                    Margin="0,0,0,0" Width="20"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <Button Margin="286,0,60,0"
+                Command="{Binding CloseDialog}" 
+                CommandParameter="{StaticResource True}"
+                VerticalAlignment="Bottom">OK</Button>
+
+        <Button Margin="0,0,5,0"
+                Command="{Binding CloseDialog}"
+                CommandParameter="{StaticResource False}"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom">Cancel</Button>
+    </Grid>
+</UserControl>

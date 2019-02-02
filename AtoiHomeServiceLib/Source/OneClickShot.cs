@@ -4,8 +4,6 @@ using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Web;
-using System.Web.Security;
-using AtoiHomeServiceLib.Source.Utility;
 
 namespace AtoiHomeServiceLib
 {
@@ -20,11 +18,29 @@ namespace AtoiHomeServiceLib
         public event OneClickShotEvent RaiseOneClickShotEvent = delegate { };
 
         /// <summary>
-        /// 환경변수로 변경할 것
+        /// LOCAL_SERVICE가 업로드 파일을 저장하는 폴더 설정
+        /// 서비스가 시작될때 윈도우 레지스트리에서 폴더path을 얻은 후 이 메서드를 콜해서
+        /// 업로드폴더 경로를 지정한다.
         /// </summary>
-        private const string SZ_BASEDIR = "D:/uploadfile/";
+        private static string SZ_BASEDIR = "";
 
-        public String GetRoot ()
+        public bool setEnv(string strUploadPath)
+        {
+            string folderPath = System.IO.Path.Combine(strUploadPath);
+            System.IO.DirectoryInfo folderInfo = new System.IO.DirectoryInfo(folderPath);
+            if (!folderInfo.Exists)
+            {
+                return false;
+                throw new System.IO.DirectoryNotFoundException("Directory not found");
+            }
+            else
+            {
+                SZ_BASEDIR = strUploadPath;
+                return true;
+            }
+        }
+
+        public string GetRoot ()
         {
             return @"This site was built to test RESTful XFaxService";
         }
@@ -34,7 +50,7 @@ namespace AtoiHomeServiceLib
         /// </summary>
         /// <param name="arg"></param>
         /// <returns></returns>
-        public String GetData(string arg)
+        public string GetData(string arg)
         {
             try
             {
@@ -48,65 +64,22 @@ namespace AtoiHomeServiceLib
             return null;
         }
 
-#if _EXTERNAL_MSSQLDB
         /// <summary>
-        /// 로그인 오퍼레이션 Post, Https로 변경해야함
-        /// </summary>
-        /// <param name="arg"></param>
-        /// <returns></returns>
-        public String SignIn(string Email, string Password)
-        {
-            try
-            {
-                RaiseOneClickShotEvent(this, new OneClickShotEventArgs(Email, Password, MessageType.GET_DATA, "I'm a "+Email, null));
-                if (DBApi.ValidateUser(Email, Password))
-                    return "OK";
-                else
-                    return "ERROR";
-            }
-            catch (Exception ex)
-            {
-                RaiseOneClickShotEvent(this, new OneClickShotEventArgs(Email, Password, MessageType.ERROR_MSG, this.ToString(), ex.Message.ToString()));
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// 신규사용자 등록 오퍼레이션 Post로 변경해야함, Https로 변경해야함.
-        /// </summary>
-        /// <param name="arg"></param>
-        /// <returns></returns>
-        public String SignUp(string Email, string Password)
-        {
-            try
-            {
-                RaiseOneClickShotEvent(this, new OneClickShotEventArgs(Email, Password, MessageType.GET_DATA, "I'm a " + Email, null));
-                return Message.CreateMessage(MessageVersion.None, "UploadImage", "Ok").ToString();
-            }
-            catch (Exception ex)
-            {
-                RaiseOneClickShotEvent(this, new OneClickShotEventArgs(Email, Password, MessageType.ERROR_MSG, this.ToString(), ex.Message.ToString()));
-            }
-            return null;
-        }
-#endif
-
-
-        /// <summary>
-        /// 클라이언트가 POST mathod를 사용하여 전송하는 오퍼레이션
+        /// oneclick apps에서 POST mathod를 사용하여 전송하는 Rest API 오퍼레이션
         /// </summary>
         /// <param name="strFilename"></param> 업로드 파일명
         /// <param name="InputStream"></param> 업로드에 사용되는 stream
         /// <returns></returns>
-        public String UploadImage(String strFilename, Stream InputStream)
+        /// 
+        public string UploadImage(string strFilename, Stream InputStream)
         {
             try
             {
-                string Email, Password;
+                string Email;
                 if (CheckAccessCore(out Email) == false)
                 {
                     WebOperationContext ctx = WebOperationContext.Current;
-                    ctx.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.NonAuthoritativeInformation;
+                    ctx.OutgoingResponse.StatusCode = HttpStatusCode.NonAuthoritativeInformation;
                     return Message.CreateMessage(MessageVersion.None, "UploadImage", "Failure").ToString();
                 }
 
@@ -114,7 +87,8 @@ namespace AtoiHomeServiceLib
                     return Message.CreateMessage(MessageVersion.None, "UploadImage", "Filename is null").ToString();
 
 
-                string szFilePath = SZ_BASEDIR + strFilename; ;
+                string szFilePath = SZ_BASEDIR + "\\" + strFilename; ;
+                Console.WriteLine("Save Folder : {0}", szFilePath);
                 if (System.IO.File.Exists(szFilePath)) System.IO.File.Delete(szFilePath);
 
                 FileStream fileStream = null;
@@ -141,13 +115,20 @@ namespace AtoiHomeServiceLib
             }
         }
 
-        public Stream DownloadImage(String strFilename)
+        /// <summary>
+        /// oneclickviewer에서 remote service에 요청하는 SOAP 파일다운로드 오퍼레이션
+        /// local service일 경우는 이미지가 저장된 폴더에서 파일을 로드
+        /// </summary>
+        /// <param name="strFilename"></param>
+        /// <returns></returns>
+        public Stream DownloadImage(string strFilename)
         {
             try
             {
-                string filePath = System.IO.Path.Combine("D:/uploadfile/", strFilename);
+                string filePath = System.IO.Path.Combine(SZ_BASEDIR, strFilename);
                 System.IO.FileInfo fileInfo = new System.IO.FileInfo(filePath);
-                if (!fileInfo.Exists) throw new System.IO.FileNotFoundException("File not found");
+                if (!fileInfo.Exists)
+                    throw new System.IO.FileNotFoundException("File not found");
                 RaiseOneClickShotEvent(this, new OneClickShotEventArgs("atoi", "gksrmf65!!", MessageType.DOWNLOAD_IMAGE, strFilename, "Success"));
                 return File.OpenRead(filePath);
             }
@@ -163,9 +144,9 @@ namespace AtoiHomeServiceLib
         /// </summary>
         /// <param name="strFindKey"></param>
         /// <returns></returns>
-        protected String GetRequestHeaderProperty (String strFindKey)
+        protected string GetRequestHeaderProperty (string strFindKey)
         {
-            String strRet = null;
+            string strRet = null;
 
             IncomingWebRequestContext request = WebOperationContext.Current.IncomingRequest;
             WebHeaderCollection headers = request.Headers;

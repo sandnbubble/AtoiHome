@@ -2,7 +2,7 @@
 
 namespace AtoiHomeManager
 {
-    // Application thread publish this event to send message for views
+    //// Application thread publish this event to send message for views
     public delegate void ModelContextEvent(object sender, ModelContextArgs e);
     public delegate void OneClickShotEvent(object sender, OneClickShotEventArgs e);
 
@@ -17,12 +17,4 @@ namespace AtoiHomeManager
             this.Message = Message;
         }
     }
-
-    public class MainWindowContext
-    {
-        // Bind with ButtonConnect.IsEnabled property in MainWindow.xaml
-        public bool bConnectButtonEnable { get; set; }
-        public string strDownloadedFilename { get; set; }
-    }
-
 }

@@ -110,14 +110,13 @@ public class SignupActivity extends AppCompatActivity {
                 }
             }
         };
-        NetworkUtils networkUtils = new NetworkUtils();
-        networkUtils.signupRequest(UserInfo, this, asyncResponse);
+        NetworkUtils networkUtils = new NetworkUtils(this);
+        networkUtils.signupRequest(UserInfo, asyncResponse);
 
     }
 
     @Override
     public void onBackPressed() {
-        // Disable going back to the MainActivity
         //현재 Task가 백그라운드로 이동하게된다.
         moveTaskToBack(true);
     }
@@ -126,8 +125,7 @@ public class SignupActivity extends AppCompatActivity {
         _signupButton.setEnabled(true);
         setResult(RESULT_OK, null);
 
-        // 여기에 계정생성이 성공한 후 처리를 한다. SignUp에서 할 수도 있지만
-        // SignIn, Signup을 하나로 통할 할 경우를 종속성을 갖지 않아야한다.
+        // 여기에 계정생성이 성공한 후 처리를 한다.
         SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = Prefs.edit();
         editor.putString("Email", _emailText.getText().toString());
@@ -135,6 +133,8 @@ public class SignupActivity extends AppCompatActivity {
         editor.putString("HostURL", "www.atoihome.site");
         editor.commit();
 
+        // 사용자 계정이 성공하면 로그인을 자동으로 수행해 억세스토큰을 서버로부터 발급받아
+        // SharedPreference에 저장한다.
         String UserInfo = "grant_type=password&username="+_emailText.getText().toString()+"&password="+_passwordText.getText().toString();
         NetworkUtils.AsyncResponse asyncResponse =    new NetworkUtils.AsyncResponse(){
             @Override
@@ -147,7 +147,6 @@ public class SignupActivity extends AppCompatActivity {
                         String AccessToken = jObject.getString("access_token");
                         String TokenType = jObject.getString("token_type");
                         String ExpiresIn = jObject.getString("expires_in");
-//                        억세스 토큰을 SharePreference에 저장
                         SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                         SharedPreferences.Editor editor = Prefs.edit();
                         editor.putString("AccessToken", jObject.getString("access_token"));
@@ -162,8 +161,8 @@ public class SignupActivity extends AppCompatActivity {
                 }
             }
         };
-        NetworkUtils networkUtils = new NetworkUtils();
-        networkUtils.getTokenRequest(UserInfo, this, asyncResponse);
+        NetworkUtils networkUtils = new NetworkUtils(this);
+        networkUtils.getTokenRequest(UserInfo, asyncResponse);
         finish();
     }
 

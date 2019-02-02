@@ -25,9 +25,9 @@ namespace AtoiHome
             log.Info("Start WCF atoihome service!!");
             try
             {
-                OneClickShotServiceHostManager.StartService();
+                OneClickShotServiceHostManager.startService();
                 Console.ReadKey();
-                OneClickShotServiceHostManager.StopService();
+                OneClickShotServiceHostManager.stopService();
 
             }
             catch (Exception e)

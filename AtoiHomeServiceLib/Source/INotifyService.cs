@@ -11,6 +11,7 @@ namespace AtoiHomeServiceLib
     public enum MessageType
     {
         GET_DATA = 0,
+        SET_ENV,
         UPLOAD_IMAGE,
         DOWNLOAD_IMAGE,
         NOTIFYSERVICE_CLOSING,
@@ -47,9 +48,12 @@ namespace AtoiHomeServiceLib
 
         [OperationContract(IsOneWay = true)]
         void Disconnect(OneClickShotEventArgs e);
-        
+
         [OperationContract(IsOneWay = true)]
         void SendMessage(OneClickShotEventArgs e);
+
+        //[OperationContract(IsOneWay = true)]
+        //void CallbackAllClients(Action<ICallbackService> action);
 
         [OperationContract]
         [FaultContractAttribute(typeof(CustomerServiceFault))]

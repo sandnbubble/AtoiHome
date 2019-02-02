@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="AtoiHomeManager.Source.View.ZoomImageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AtoiHomeManager.Source.View"
+             mc:Ignorable="d" 
+             x:Name="ZoomImageViewControl"
+             d:DesignHeight="1000" d:DesignWidth="562" Loaded="UserControl_Loaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ScrollViewer x:Name="scrollViewer" Grid.Column="1" Margin="5,5,0,0"
+                      VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
+            <Grid x:Name="gridImage" RenderTransformOrigin="0.5,0.5" Width="562" Height="1000">
+                <Grid.LayoutTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="scaleTransform"/>
+                    </TransformGroup>
+                </Grid.LayoutTransform>
+                <Image  x:Name="imageDownload" 
+                        Source="{Binding Path=LocalImagePath, ElementName=ZoomImageViewControl}" 
+                        RenderTransformOrigin="0.5, 0.5">
+                    <Image.LayoutTransform>
+                        <RotateTransform Angle="{Binding Path=LocalRotateAngle, ElementName=ZoomImageViewControl}"/>
+                    </Image.LayoutTransform>
+                </Image>
+                <CheckBox Content="ScrooView"
+                          IsChecked="{Binding Path=LocalViewMode, ElementName=ZoomImageViewControl}"
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Center"
+                          Visibility="Hidden"
+                          Margin="0,0,0,0" />
+            </Grid>
+        </ScrollViewer>
+        <Slider x:Name="slider" Visibility="Hidden" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left" Minimum="1" Width="10"/>
+    </Grid>
+</UserControl>

@@ -1,11 +1,7 @@
 package com.atoihome.oneclick;
 
 import android.Manifest;
-import android.app.ActivityManager;
 import android.app.Service;
-import android.app.usage.UsageStats;
-import android.app.usage.UsageStatsManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -13,7 +9,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -22,9 +17,8 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+
+import org.json.JSONObject;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
@@ -87,9 +81,22 @@ public class ScreenshotDetectionService extends Service {
     private void onScreenshotCaptured(String strFilePath) {
         SharedPreferences Prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (Prefs.getBoolean("AutomaticUpload", false)){
-            UploadFileToServer uploadImage = new UploadFileToServer(getApplicationContext(), false);
-            uploadImage.uploadFileToServer(getHostServiceURL(), strFilePath);
-//            Toast.makeText(getApplicationContext(), getHostServiceURL()+strFilePath, LENGTH_SHORT).show();
+            NetworkUtils.AsyncResponse asyncResponse =    new NetworkUtils.AsyncResponse(){
+                @Override
+                public void processFinish(Object msgRet) {
+                    try{
+                        NetworkUtils.HttpMessage ResponseMsg = (NetworkUtils.HttpMessage)msgRet;
+                        Toast.makeText(getApplicationContext(), "RetCode = " + ResponseMsg.iRet + " "+ResponseMsg.Message, LENGTH_SHORT).show();
+                        if (ResponseMsg.iRet == 200){
+                        }else{
+                        }
+                    }catch (Exception e){
+                        Toast.makeText(getApplicationContext(), e.getMessage(), LENGTH_SHORT);
+                    }
+                }
+            };
+            NetworkUtils networkUtils = new NetworkUtils(getApplicationContext());
+            networkUtils.uploadFileRequest(strFilePath, asyncResponse);
         }
         else{
             try {

@@ -74,7 +74,7 @@ namespace AtoiHomeService
                 serviceStatus.dwWaitHint = 100000;
                 SetServiceStatus(this.ServiceHandle, ref serviceStatus);
 
-                OneClickShotServiceHostManager.StartService();
+                OneClickShotServiceHostManager.startService();
 
                 // Update the service state to Running.
                 serviceStatus.dwCurrentState = ServiceState.SERVICE_RUNNING;
@@ -82,7 +82,7 @@ namespace AtoiHomeService
             }
             catch (Exception e)
             {
-                OneClickShotServiceHostManager.StopService();
+                OneClickShotServiceHostManager.stopService();
                 eventLogForWin.WriteEntry(e.Message);
                 log.Info("Error :" + e.Message);
             }
@@ -98,7 +98,7 @@ namespace AtoiHomeService
             serviceStatus.dwCurrentState = ServiceState.SERVICE_STOP_PENDING;
             serviceStatus.dwWaitHint = 100000;
             SetServiceStatus(this.ServiceHandle, ref serviceStatus);
-            OneClickShotServiceHostManager.StopService();
+            OneClickShotServiceHostManager.stopService();
             // Update the service state to Running.
 
             serviceStatus.dwCurrentState = ServiceState.SERVICE_STOPPED;

@@ -41,9 +41,10 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;/D _EXTERNAL_MSSQLDB</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -70,6 +71,7 @@
     <Compile Include="Source\Utility\DBApi.cs" />
     <Compile Include="Source\Utility\DNSInfo.cs" />
     <Compile Include="Source\Utility\TokenAuth.cs" />
+    <Compile Include="Source\Utility\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

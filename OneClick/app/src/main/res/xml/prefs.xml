@@ -31,7 +31,7 @@
         <EditTextPreference
             android:key="ServiceHost"
             android:defaultValue="192.168.X.X"
-            android:summary="Enter your host computer ip"
+            android:summary="Enter host computer ip"
             android:singleLine="true"
             android:title="Servicehost IP" />
     </PreferenceCategory>
@@ -42,16 +42,17 @@
             android:key="AutomaticUpload"
             android:defaultValue="true"
             android:summary="use"
-            android:title="Upload screenshot automatically" />
+            android:title="Auto upload" />
         <SwitchPreference
             android:key="UploadCameraShot"
             android:defaultValue="false"
             android:summary="not use"
-            android:title="Upload image taken with the camera" />
+            android:singleLine="false"
+            android:title="Support camera" />
         <SwitchPreference
             android:key="AutomaticStart"
             android:defaultValue="true"
             android:summary="use"
-            android:title="Run service at startup" />
+            android:title="Auto start" />
     </PreferenceCategory>
 </PreferenceScreen>

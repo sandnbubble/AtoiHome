@@ -1,10 +1,20 @@
 ﻿using AtoiHomeServiceLib;
 using System;
-using System.Data.SqlClient;
 using System.Net.NetworkInformation;
 using System.ServiceModel;
 using System.ServiceModel.Description;
+using AtoiHomeServiceLib.Source.Utility;
+using System.Data.SqlClient;
 
+// _REMOTE_SERVICE_
+// 인증서버, 웹사이트, WCF service로 구성되며 sumtech corp에서 관리한다.
+// https://www.ahoihome.site, WCF atoihomeservice remote service
+// 
+// _LOCAL_SERVICE_
+// 사용자 컴퓨터에 설치되어 서비스를 제공한다.
+// http://localservice, WCF atoihomeservice standalone service
+// _REMOTE_SERVICE_, _LOCAL_SERVICE_의 소스를 분리하여 별도의 프로젝트로 관리하는 방안을 고려중
+// 공통소스를 분리하는 것이 선행되어야 함.
 
 namespace AtoiHome
 {
@@ -20,27 +30,34 @@ namespace AtoiHome
     {
         ServiceHost serviceHost, IPCHost;
         NotifyService IPCService = new NotifyService();
+        OneClickShot OneClickShotService = new OneClickShot();
 
-        public int StartService()
+        public int startService()
         {
             Program.log.DebugFormat("Start OneClickShot service");
             try
             {
+                // 레지스트리에서 업로드폴더경로를 얻어와서 atoihomeservice의 업로드경로로 설정한다.
+                // REMOTE_SERVICE일 경우 IIS에서 가상디렉토리를 수동으로 재설정해야하는데
+                // 자동화하는 방법을 찾아야함.
+                string UploadPath = Utils.getRegValue("atoihome", "UploadPath");
+                OneClickShotService.setEnv(UploadPath);
+                Program.log.DebugFormat("UploadPath : {0}", UploadPath);
 
                 #region Set host ipaddress
                 EnumNetworkType iNetworkType = EnumNetworkType.LOCALHOST;
-                String strServiceIP = null;
+                string strServiceIP = null;
                 switch (iNetworkType)
                 {
                     case EnumNetworkType.WAN_NETWORK:
-                        strServiceIP = AtoiHomeServiceLib.Source.Utility.DNSInfo.GetPublicIP().ToString();
+                        strServiceIP = DNSInfo.GetPublicIP().ToString();
                         break;
                     case EnumNetworkType.LAN_NETWORK_ETHERNET:
                     case EnumNetworkType.LAN_NETWORK_WIRELESS:
                         if (iNetworkType == EnumNetworkType.LAN_NETWORK_ETHERNET)
-                            strServiceIP = AtoiHomeServiceLib.Source.Utility.DNSInfo.GetLocalIP(NetworkInterfaceType.Ethernet).ToString();
+                            strServiceIP = DNSInfo.GetLocalIP(NetworkInterfaceType.Ethernet).ToString();
                         else
-                            strServiceIP = AtoiHomeServiceLib.Source.Utility.DNSInfo.GetLocalIP(NetworkInterfaceType.Wireless80211).ToString();
+                            strServiceIP = DNSInfo.GetLocalIP(NetworkInterfaceType.Wireless80211).ToString();
                         break;
                     default:
                         strServiceIP = "LOCALHOST";
@@ -67,11 +84,10 @@ namespace AtoiHome
                 // OneClickShot class 참조할 것
 
                 #region OneClickShot service 
-                OneClickShot instancOneClickShot = new OneClickShot();
 #if DEBUG
-                serviceHost = new ServiceHost(instancOneClickShot, new Uri("http://" + strServiceIP + ":80/Test/OneClickShot"));
+                serviceHost = new ServiceHost(OneClickShotService, new Uri("http://" + strServiceIP + ":80/Test/OneClickShot"));
 #else
-                serviceHost = new ServiceHost(instancOneClickShot, new Uri("http://" + strServiceIP + ":80/OneClickShot"));
+                serviceHost = new ServiceHost(OneClickShotService, new Uri("http://" + strServiceIP + ":80/OneClickShot"));
 #endif
                 serviceHost.Opened += new EventHandler(OneClickShotServiceOpened);
                 serviceHost.Open();
@@ -88,11 +104,10 @@ namespace AtoiHome
                 #endregion
 
                 #region NotifyService that IPC between OneClickShot service and AtoiHomeManager client application
-                NotifyService instanceNotify = new NotifyService();
 #if DEBUG
-                IPCHost = new ServiceHost(instanceNotify, new Uri("net.pipe://localhost/Test"));
+                IPCHost = new ServiceHost(IPCService, new Uri("net.pipe://localhost/Test"));
 #else
-                IPCHost = new ServiceHost(instanceNotify, new Uri("net.pipe://localhost"));
+                IPCHost = new ServiceHost(IPCService, new Uri("net.pipe://localhost"));
 #endif
 
                 NetNamedPipeBinding IPCBinding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.None);
@@ -123,7 +138,7 @@ namespace AtoiHome
             return 0;
         }
 
-        public bool StopService()
+        public bool stopService()
         {
             Program.log.DebugFormat("Invoked StopService");
             try
@@ -177,7 +192,7 @@ namespace AtoiHome
             try
             {
                 OneClickShotEventArgs ClosingEventArgs = new OneClickShotEventArgs("NotifyService", null, MessageType.NOTIFYSERVICE_CLOSING, "Closing", null);
-                IPCService.SendMessage(ClosingEventArgs);
+                IPCService.CallbackAllClients(ClosingEventArgs);
             }
             catch (Exception ex)
             {
@@ -225,6 +240,12 @@ namespace AtoiHome
                         case MessageType.DISCONNECTED_CLIENT:
                             Program.log.DebugFormat("Disconnected client {0}, {1} ", e.UserId, e.Message);
                             break;
+                        case MessageType.SET_ENV:
+                            if (OneClickShotService.setEnv(e.Message))
+                            {
+                                Utils.setRegValue("atoihome", "UploadPath", e.Message);
+                            }
+                            break;
                         default:
                             Program.log.ErrorFormat("Unknown message type is received from client {0}, {1} ", e.UserId, e.Message);
                             break;
@@ -240,9 +261,9 @@ namespace AtoiHome
                 Program.log.ErrorFormat("Exception Error occurred in {0}\r\n{1}", this.ToString(), ex.Message);
             }
         }
-        #endregion
+#endregion
 
-        #region
+#region
         /// <summary>
         /// OneClickShot 서비스의 오퍼레이션들이 발행하는 이벤트를 처리하기 위한 이벤트 핸들러
         /// </summary>
@@ -259,20 +280,30 @@ namespace AtoiHome
                     {
                         // net.pipe에 연결된 client application에 UPLOAD_IMAGE를 알림
                         case MessageType.UPLOAD_IMAGE:
-
-#if _EXTERNAL_MSSQLDB
+                            e.MessageType = MessageType.DOWNLOAD_IMAGE;
+#if !_LOCAL_SERVICE_
+                            //Remote service일 경우 www.atoihome.site와 DB를 연동한다.
                             DateTime dtUpload = DateTime.Now;
                             string strUploadDate = dtUpload.ToString("yyyyMMdd HH:mm:ss");
                             Program.log.DebugFormat("UploadDate = {0}", strUploadDate);
-                            e.MessageType = MessageType.DOWNLOAD_IMAGE;
-                            String SQLInsert = string.Format("INSERT INTO uploadimage (UserID, UploadDate, ImagePath) VALUES ('{0}', '{1}', '{2}');",
+                            string SQLInsert = string.Format("INSERT INTO uploadimage (UserID, UploadDate, ImagePath) VALUES ('{0}', '{1}', '{2}');",
                                 e.UserId,
                                 strUploadDate,
                                 e.Message);
                             InsertQuery(SQLInsert);
+                            //IPCService는 네임드파이프를 사용해서 서버사이드 프로세스간에 IPC를 위해 제공된 것이다.
+                            //따라서 전송대상은 현재는 AtoiHomeManager로 한정된다. 
+                            //원거리에서 연결한 클라이언트인 OneClickViewer들은 별도의 nettcpip 엔드포인트를 생성해 연결하고
+                            //전송루틴을 추가해서 해결할것
+                            //RemoteServiceForOneClickViewr.SendMessage(e) 형태가 될 것이다.
+                            IPCService.CallbackAllClients(e);
+                            Program.log.DebugFormat("Sent {0} message to AtoiHomeManager", e.MessageType.ToString());
+#else
+                            // LOCAL_SERVICE일 경우 연결된 모든 OneClickViewer에게 메시지를 보낸다.
+                            // 이렇게 하면 LOCAL_SERVIC를 사용하는 OneClickViewer에서 로그인을 할 필요가 없게된다.
+                            IPCService.CallbackAllClients(e);
+                            Program.log.DebugFormat("Sent {0} message to OneClickViewer", e.MessageType.ToString());
 #endif
-                            IPCService.SendMessage(e);
-                            Program.log.DebugFormat("Sent {0} message to {1}", e.MessageType.ToString(), e.UserId);
                             break;
                         default:
                             break;
@@ -289,7 +320,7 @@ namespace AtoiHome
             }
         }
 
-#if _EXTERNAL_MSSQLDB
+#if !_LOCAL_SERVICE_
         /// <summary>
         /// Insert uploadimage infomation to database
         /// </summary>
@@ -299,7 +330,15 @@ namespace AtoiHome
         {
             try
             {
-                SqlConnection myConnection = new SqlConnection("Data Source=ATOI\\ATOIHOMEDBSERVER; Persist Security Info = False; User ID = sa; Password = gksrmf; Initial Catalog = AtoiHomeWeb");
+                string strDbAdminID = "sa";
+                string strDbAdminPassword = "gksrmf";
+                string strDbName = "AtoiHomeWeb";
+
+                SqlConnection myConnection = new SqlConnection(
+                    "Data Source=ATOI\\ATOIHOMEDBSERVER; Persist Security Info = False; "+
+                    "User ID = " +strDbAdminID
+                    +"; Password = " + strDbAdminPassword
+                    + "; Initial Catalog = " +strDbName);
                 SqlCommand myCommand = myConnection.CreateCommand();
                 myCommand.CommandText = strQuery;
                 myConnection.Open();
@@ -315,5 +354,5 @@ namespace AtoiHome
         }
 #endif
     }
-    #endregion
+#endregion
 }
