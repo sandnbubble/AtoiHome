@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">TextTransfer</string>
+    <string name="app_name">OneClickShot</string>
+    <string name="app_AccessToken">AccessToken</string>
+    <string name="ServiceHost">211.212.200.192</string>
+    <string name="AuthServer">www.atoihome.site</string>
+    <string name="MainActivity">com.atoihome.oneclick.MainActivity</string>
 </resources>

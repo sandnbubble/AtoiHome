@@ -41,7 +41,7 @@
             // 
             this.serviceInstaller1.Description = "폰에서 전송한 파일을 로컬 스토리지에 저장하는 서비스";
             this.serviceInstaller1.DisplayName = "AtoiHomeService";
-            this.serviceInstaller1.ServiceName = "TextTransfer";
+            this.serviceInstaller1.ServiceName = "OneClickShot";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller

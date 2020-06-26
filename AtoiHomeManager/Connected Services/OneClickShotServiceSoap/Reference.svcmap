@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="7b43523c-c3e7-4765-bcdf-eb3db5fbc206" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost://oneclickshot" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="OneClickShot.disco" MetadataType="Disco" ID="87030a89-d2a9-4c75-9286-a0bdcfe8da5a" SourceId="1" SourceUrl="http://localhost/OneClickShot?disco" />
+    <MetadataFile FileName="OneClickShot.xsd" MetadataType="Schema" ID="8f293fee-1d09-4a1f-9644-7f29c61f86da" SourceId="1" SourceUrl="http://localhost/OneClickShot?xsd=xsd2" />
+    <MetadataFile FileName="OneClickShot1.xsd" MetadataType="Schema" ID="784b967f-2d64-424f-835d-e5f3b4849708" SourceId="1" SourceUrl="http://localhost/OneClickShot?xsd=xsd0" />
+    <MetadataFile FileName="OneClickShot.wsdl" MetadataType="Wsdl" ID="358039b8-9c74-4333-832d-6c3995991c51" SourceId="1" SourceUrl="http://localhost/OneClickShot?wsdl" />
+    <MetadataFile FileName="OneClickShot2.xsd" MetadataType="Schema" ID="76982220-e23c-4d67-bb07-8af5d1141fba" SourceId="1" SourceUrl="http://localhost/OneClickShot?xsd=xsd1" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

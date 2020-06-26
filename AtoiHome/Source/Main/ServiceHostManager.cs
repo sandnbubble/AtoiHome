@@ -3,7 +3,18 @@ using System;
 using System.Net.NetworkInformation;
 using System.ServiceModel;
 using System.ServiceModel.Description;
+using AtoiHomeServiceLib.Source.Utility;
+using System.Data.SqlClient;
 
+// _REMOTE_SERVICE_
+// 인증서버, 웹사이트, WCF service로 구성되며 sumtech corp에서 관리한다.
+// https://www.ahoihome.site, WCF atoihomeservice remote service
+// 
+// _LOCAL_SERVICE_
+// 사용자 컴퓨터에 설치되어 서비스를 제공한다.
+// http://localservice, WCF atoihomeservice standalone service
+// _REMOTE_SERVICE_, _LOCAL_SERVICE_의 소스를 분리하여 별도의 프로젝트로 관리하는 방안을 고려중
+// 공통소스를 분리하는 것이 선행되어야 함.
 
 namespace AtoiHome
 {
@@ -19,20 +30,27 @@ namespace AtoiHome
     {
         ServiceHost serviceHost, IPCHost;
         NotifyService IPCService = new NotifyService();
+        OneClickShot OneClickShotService = new OneClickShot();
 
-        public int StartService () 
+        public int startService()
         {
-            Program.log.DebugFormat("Start TextTransfer service");
+            Program.log.DebugFormat("Start OneClickShot service");
             try
             {
+                // 레지스트리에서 업로드폴더경로를 얻어와서 atoihomeservice의 업로드경로로 설정한다.
+                // REMOTE_SERVICE일 경우 IIS에서 가상디렉토리를 수동으로 재설정해야하는데
+                // 자동화하는 방법을 찾아야함.
+                string UploadPath = Utils.getRegValue("atoihome", "UploadPath");
+                OneClickShotService.setEnv(UploadPath);
+                Program.log.DebugFormat("UploadPath : {0}", UploadPath);
 
                 #region Set host ipaddress
                 EnumNetworkType iNetworkType = EnumNetworkType.LOCALHOST;
-                String strServiceIP = null;
+                string strServiceIP = null;
                 switch (iNetworkType)
                 {
                     case EnumNetworkType.WAN_NETWORK:
-                        strServiceIP = DNSInfo.GetMyExternalIpAddress().ToString();
+                        strServiceIP = DNSInfo.GetPublicIP().ToString();
                         break;
                     case EnumNetworkType.LAN_NETWORK_ETHERNET:
                     case EnumNetworkType.LAN_NETWORK_WIRELESS:
@@ -59,22 +77,21 @@ namespace AtoiHome
 
                 // ServiceHost는 첫번째 매개변수로 service type과 service instance를 사용할 수 있다.
                 // 매개변수로 service type을 사용할 경우 service의 instance는 client request가 발생할 때
-                // 생성된다. 따라서 TextTransfer service 메서드인 UploadImage가 발행하는 ImageUploadedEvent의 eventhandler를
-                // ServiceHostManager에서 등록하려면 ServiceHost의 첫번째 매개변수를 아래와 같이 TextTransfer instance로 설정해야한다.
-                // 이 방법을 사용할 때 event 발행자인 TextTransfer 서비스의 속성은 반드시 아래와 같아야한다. 
+                // 생성된다. 따라서 OneClickShot service 메서드인 UploadImage가 발행하는 ImageUploadedEvent의 eventhandler를
+                // ServiceHostManager에서 등록하려면 ServiceHost의 첫번째 매개변수를 아래와 같이 OneClickShot instance로 설정해야한다.
+                // 이 방법을 사용할 때 event 발행자인 OneClickShot 서비스의 속성은 반드시 아래와 같아야한다. 
                 //[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-                // TextTransfer class 참조할 것
+                // OneClickShot class 참조할 것
 
-                #region TextTransfer service 
-                TextTransfer instancTextTransfer = new TextTransfer();
+                #region OneClickShot service 
 #if DEBUG
-                serviceHost = new ServiceHost(instancTextTransfer, new Uri("http://" + strServiceIP + ":80/Test/TextTransfer"));
+                serviceHost = new ServiceHost(OneClickShotService, new Uri("http://" + strServiceIP + ":80/Test/OneClickShot"));
 #else
-                serviceHost = new ServiceHost(instancTextTransfer, new Uri("http://" + strServiceIP + ":80/TextTransfer"));
+                serviceHost = new ServiceHost(OneClickShotService, new Uri("http://" + strServiceIP + ":80/OneClickShot"));
 #endif
-                serviceHost.Opened += new EventHandler(TextTransferServiceOpened);
+                serviceHost.Opened += new EventHandler(OneClickShotServiceOpened);
                 serviceHost.Open();
-                Program.log.DebugFormat("\tTextTransfer Service Started with {0} end points", serviceHost.Description.Endpoints.Count);
+                Program.log.DebugFormat("\tOneClickShot Service Started with {0} end points", serviceHost.Description.Endpoints.Count);
 
                 foreach (Uri address in serviceHost.BaseAddresses)
                 {
@@ -84,14 +101,13 @@ namespace AtoiHome
                         Program.log.DebugFormat("\t{0} {1}", ed.Name, ed.ListenUri.ToString());
                     }
                 }
-#endregion
+                #endregion
 
-#region NotifyService that IPC between TextTransfer service and AtoiHomeManager client application
-                NotifyService instanceNotify = new NotifyService();
+                #region NotifyService that IPC between OneClickShot service and AtoiHomeManager client application
 #if DEBUG
-                IPCHost = new ServiceHost(instanceNotify, new Uri("net.pipe://localhost/Test"));
+                IPCHost = new ServiceHost(IPCService, new Uri("net.pipe://localhost/Test"));
 #else
-                IPCHost = new ServiceHost(instanceNotify, new Uri("net.pipe://localhost"));
+                IPCHost = new ServiceHost(IPCService, new Uri("net.pipe://localhost"));
 #endif
 
                 NetNamedPipeBinding IPCBinding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.None);
@@ -111,7 +127,7 @@ namespace AtoiHome
                     }
                 }
                 Program.log.DebugFormat("\tClick any key to close...");
-#endregion
+                #endregion
             }
             catch (Exception ex)
             {
@@ -122,14 +138,14 @@ namespace AtoiHome
             return 0;
         }
 
-        public bool StopService()
+        public bool stopService()
         {
             Program.log.DebugFormat("Invoked StopService");
             try
             {
                 Program.log.DebugFormat("\tPush service is closing...... ");
                 IPCHost.Close();
-                Program.log.DebugFormat("\tTextTransfer Service is closing...... ");
+                Program.log.DebugFormat("\tOneClickShot Service is closing...... ");
                 serviceHost.Close();
                 Program.log.DebugFormat("\tSevices were closed.... bye~~~");
                 return true;
@@ -143,7 +159,7 @@ namespace AtoiHome
             }
         }
 
-#region EventHandler
+        #region EventHandler
 
 
 
@@ -157,8 +173,8 @@ namespace AtoiHome
         {
             try
             {
-                // Host는 다르지만 TextTransferEvent 타입은 TextTransf와 NotifyService가 공유한다.
-                (IPCHost.SingletonInstance as NotifyService).onTextTransferEvent += new TextTransferEvent(NotifyServiceOperationCompleted);
+                // Host는 다르지만 OneClickShotEvent 타입은 TextTransf와 NotifyService가 공유한다.
+                (IPCHost.SingletonInstance as NotifyService).OneClickShotEvent += new OneClickShotEvent(NotifyServiceOperationCompleted);
             }
             catch (Exception ex)
             {
@@ -175,8 +191,8 @@ namespace AtoiHome
         {
             try
             {
-                TextTransferEventArgs ClosingEventArgs = new TextTransferEventArgs("NotifyService", MessageType.NOTIFYSERVICE_CLOSING, "Closing", null);
-                IPCService.SendMessage(ClosingEventArgs);
+                OneClickShotEventArgs ClosingEventArgs = new OneClickShotEventArgs("NotifyService", null, MessageType.NOTIFYSERVICE_CLOSING, "Closing", null);
+                IPCService.CallbackAllClients(ClosingEventArgs);
             }
             catch (Exception ex)
             {
@@ -186,16 +202,16 @@ namespace AtoiHome
         }
 
         /// <summary>
-        /// TextTransfer service가 시작되면 main thread에서 TextTransfer service의 오퍼레이션들(GetData, UploadImage, DownloadImage 등)이
+        /// OneClickShot service가 시작되면 main thread에서 OneClickShot service의 오퍼레이션들(GetData, UploadImage, DownloadImage 등)이
         /// 발행하는 이벤트를 구독하기위한 이벤트핸들러를 정의하고 등록
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TextTransferServiceOpened(Object sender, EventArgs e)
+        private void OneClickShotServiceOpened(Object sender, EventArgs e)
         {
             try
             {
-                (serviceHost.SingletonInstance as TextTransfer).onTextTransferEvent += new TextTransferEvent(TextTransferServiceOperationCompleted);
+                (serviceHost.SingletonInstance as OneClickShot).RaiseOneClickShotEvent += new OneClickShotEvent(OneClickShotServiceOperationCompleted);
             }
             catch (Exception ex)
             {
@@ -205,11 +221,11 @@ namespace AtoiHome
 
 
         /// <summary>
-        /// TextTransfer 서비스의 오퍼레이션들이 발행하는 이벤트를 처리하기 위한 이벤트 핸들러
+        /// OneClickShot 서비스의 오퍼레이션들이 발행하는 이벤트를 처리하기 위한 이벤트 핸들러
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void NotifyServiceOperationCompleted(Object sender, TextTransferEventArgs e)
+        private void NotifyServiceOperationCompleted(Object sender, OneClickShotEventArgs e)
         {
             try
             {
@@ -223,6 +239,12 @@ namespace AtoiHome
                             break;
                         case MessageType.DISCONNECTED_CLIENT:
                             Program.log.DebugFormat("Disconnected client {0}, {1} ", e.UserId, e.Message);
+                            break;
+                        case MessageType.SET_ENV:
+                            if (OneClickShotService.setEnv(e.Message))
+                            {
+                                Utils.setRegValue("atoihome", "UploadPath", e.Message);
+                            }
                             break;
                         default:
                             Program.log.ErrorFormat("Unknown message type is received from client {0}, {1} ", e.UserId, e.Message);
@@ -243,11 +265,11 @@ namespace AtoiHome
 
 #region
         /// <summary>
-        /// TextTransfer 서비스의 오퍼레이션들이 발행하는 이벤트를 처리하기 위한 이벤트 핸들러
+        /// OneClickShot 서비스의 오퍼레이션들이 발행하는 이벤트를 처리하기 위한 이벤트 핸들러
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TextTransferServiceOperationCompleted(Object sender, TextTransferEventArgs e)
+        private void OneClickShotServiceOperationCompleted(Object sender, OneClickShotEventArgs e)
         {
             try
             {
@@ -259,8 +281,29 @@ namespace AtoiHome
                         // net.pipe에 연결된 client application에 UPLOAD_IMAGE를 알림
                         case MessageType.UPLOAD_IMAGE:
                             e.MessageType = MessageType.DOWNLOAD_IMAGE;
-                            IPCService.SendMessage(e);
-                            Program.log.DebugFormat("Sent {0} message to {1}", e.MessageType.ToString(), e.UserId);
+#if !_LOCAL_SERVICE_
+                            //Remote service일 경우 www.atoihome.site와 DB를 연동한다.
+                            DateTime dtUpload = DateTime.Now;
+                            string strUploadDate = dtUpload.ToString("yyyyMMdd HH:mm:ss");
+                            Program.log.DebugFormat("UploadDate = {0}", strUploadDate);
+                            string SQLInsert = string.Format("INSERT INTO uploadimage (UserID, UploadDate, ImagePath) VALUES ('{0}', '{1}', '{2}');",
+                                e.UserId,
+                                strUploadDate,
+                                e.Message);
+                            InsertQuery(SQLInsert);
+                            //IPCService는 네임드파이프를 사용해서 서버사이드 프로세스간에 IPC를 위해 제공된 것이다.
+                            //따라서 전송대상은 현재는 AtoiHomeManager로 한정된다. 
+                            //원거리에서 연결한 클라이언트인 OneClickViewer들은 별도의 nettcpip 엔드포인트를 생성해 연결하고
+                            //전송루틴을 추가해서 해결할것
+                            //RemoteServiceForOneClickViewr.SendMessage(e) 형태가 될 것이다.
+                            IPCService.CallbackAllClients(e);
+                            Program.log.DebugFormat("Sent {0} message to AtoiHomeManager", e.MessageType.ToString());
+#else
+                            // LOCAL_SERVICE일 경우 연결된 모든 OneClickViewer에게 메시지를 보낸다.
+                            // 이렇게 하면 LOCAL_SERVIC를 사용하는 OneClickViewer에서 로그인을 할 필요가 없게된다.
+                            IPCService.CallbackAllClients(e);
+                            Program.log.DebugFormat("Sent {0} message to OneClickViewer", e.MessageType.ToString());
+#endif
                             break;
                         default:
                             break;
@@ -276,6 +319,40 @@ namespace AtoiHome
                 Program.log.ErrorFormat("Exception Error occurred in {0}\r\n{1}", this.ToString(), ex.Message);
             }
         }
-#endregion
+
+#if !_LOCAL_SERVICE_
+        /// <summary>
+        /// Insert uploadimage infomation to database
+        /// </summary>
+        /// <param name="strQuery"></param>
+        /// <returns></returns>
+        public bool InsertQuery(string strQuery)
+        {
+            try
+            {
+                string strDbAdminID = "sa";
+                string strDbAdminPassword = "gksrmf";
+                string strDbName = "AtoiHomeWeb";
+
+                SqlConnection myConnection = new SqlConnection(
+                    "Data Source=ATOI\\ATOIHOMEDBSERVER; Persist Security Info = False; "+
+                    "User ID = " +strDbAdminID
+                    +"; Password = " + strDbAdminPassword
+                    + "; Initial Catalog = " +strDbName);
+                SqlCommand myCommand = myConnection.CreateCommand();
+                myCommand.CommandText = strQuery;
+                myConnection.Open();
+                myCommand.ExecuteNonQuery();
+                myConnection.Close();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Program.log.DebugFormat(e.Message.ToString());
+                return false;
+            }
+        }
+#endif
     }
+#endregion
 }

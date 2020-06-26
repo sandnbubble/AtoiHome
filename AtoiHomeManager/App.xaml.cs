@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ServiceModel;
 using System.Windows;
+using AtoiHomeManager.Source.Utils;
 using AtoiHomeServiceLib;
 using Hardcodet.Wpf.TaskbarNotification;
-
+using MahApps.Metro;
 
 namespace AtoiHomeManager
 {
@@ -13,29 +15,46 @@ namespace AtoiHomeManager
     {
         public TaskbarIcon notifyIcon;
         public bool bConnected { get; set; }
-        public event ModelContextEvent onModelContextEvent = delegate { };
-        public event TextTransferEvent onTextTransferEvent = delegate { };
+        public IpInfo ServiceInfo { get; set; }
 
+        //IPCService Callback(onOneClickShotEvent) -> App(onModelContextEvent) -> view or viewmodel 
+        public event OneClickShotEvent onOneClickShotEvent = delegate { };
+        public event ModelContextEvent onModelContextEvent = delegate { };
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            Tuple<AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
+
+            // now set the Green accent and dark theme
+            ThemeManager.ChangeAppStyle(Application.Current,
+                                        ThemeManager.GetAccent("Green"),
+                                        ThemeManager.GetAppTheme("BaseDark")); // or appStyle.Item1
             base.OnStartup(e);
             try
             {
                 //create the notifyicon(it's a resource declared in NotifyIconResources.xaml
                 notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
-                bConnected = AtoiHomeManager.MainWindow.ConnectToIPCService();
-                onTextTransferEvent += new TextTransferEvent(TextTransferEventHandler);
+                if (bConnected = Network.ConnectService())
+                {
+                        ServiceInfo = Network.NotificationService.GetHostPublicIP();
+                }
+                onOneClickShotEvent += new OneClickShotEvent(OneClickShotEventHandler);
 
-                //App configuration
 #if DEBUG
+                if (Current.MainWindow == null)
+                {
+                    Current.MainWindow = new MainWindow();
+                    Current.MainWindow.Show();
+                }
                 ShutdownMode = ShutdownMode.OnMainWindowClose;
 
 #else
                 ShutdownMode = ShutdownMode.OnExplicitShutdown;
 #endif
-
-
+            }
+            catch (FaultException<CustomerServiceFault> fault)
+            {
+                MessageBox.Show($"Fault received: {fault.Detail.ErrorMessage}");
             }
             catch (Exception ex)
             {
@@ -49,17 +68,15 @@ namespace AtoiHomeManager
             base.OnExit(e);
         }
 
-        //IPCServer에서 호출되는 양방향 통신을 위한 콜백함수
-        //매개변수로 전달되는 message를 class로 바꿔서 다양한 용도로 사용해야함
+        //IPCService (named pipe)에서 호출되는 양방향 통신을 위한 콜백함수
         public class NotifyCallback : ICallbackService
         {
-            public void SendCallbackMessage(TextTransferEventArgs e)
+            public void SendCallbackMessage(OneClickShotEventArgs e)
             {
                 try
                 {
-                    // App로 이벤트를 발행
-                    (Current as App).onTextTransferEvent(this, new TextTransferEventArgs(e));
-                    //MessageBox.Show("UserId : " + e.UserId + "MessageType : " + e.MesssageType + "Message : " + e.Message);
+                    // App로 이벤트 발행
+                    (Current as App).onOneClickShotEvent(this, new OneClickShotEventArgs(e));
                 }
                 catch (Exception ex)
                 {

@@ -1,0 +1,51 @@
+﻿@model IEnumerable<OneClickWeb.Models.UserProfile>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        @*<th>
+            @Html.DisplayNameFor(model => model.Password)
+        </th>*@
+        <th>
+            @Html.DisplayNameFor(model => model.TelNo)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SessionID)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.ActionLink(item.Email, "UploadImages", new { Email = item.Email })
+        </td>
+        @*<td>
+            @Html.DisplayFor(modelItem => item.Password)
+        </td>*@
+        <td>
+            @Html.DisplayFor(modelItem => item.TelNo)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.SessionID)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { Email = item.Email }) |
+            @Html.ActionLink("Detail", "Details",  new { Email = item.Email }) |
+            @Html.ActionLink("Delete", "Delete", new { Email = item.Email })
+        </td>
+    </tr>
+}
+
+</table>

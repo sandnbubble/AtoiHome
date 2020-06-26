@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="PfScreen">
+    <PreferenceCategory
+        android:key="NetworkInfo"
+        android:summary="Email and password information"
+        android:title="Network setting" >
+        <EditTextPreference
+            android:key="Email"
+            android:summary="Enter your Email"
+            android:singleLine="true"
+            android:title="Email" />
+        <EditTextPreference
+            android:key="Password"
+            android:summary="Enter your password"
+            android:singleLine="true"
+            android:title="Password" />
+        <EditTextPreference
+            android:key="AccessToken"
+            android:summary="Enter your AccessToken"
+            android:singleLine="true"
+            android:title="AccessToken" />
+        <EditTextPreference
+            android:key="AuthServer"
+            android:summary="Enter Auth server URL"
+            android:defaultValue="www.atoihome.site"
+            android:singleLine="true"
+            android:enabled="false"
+            android:title="AuthServer URL" />
+        <EditTextPreference
+            android:key="ServiceHost"
+            android:defaultValue="192.168.X.X"
+            android:summary="Enter host computer ip"
+            android:singleLine="true"
+            android:title="Servicehost IP" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:summary="Apps execute options"
+        android:title="Upload options" >
+        <SwitchPreference
+            android:key="AutomaticUpload"
+            android:defaultValue="true"
+            android:summary="use"
+            android:title="Auto upload" />
+        <SwitchPreference
+            android:key="UploadCameraShot"
+            android:defaultValue="false"
+            android:summary="not use"
+            android:singleLine="false"
+            android:title="Support camera" />
+        <SwitchPreference
+            android:key="AutomaticStart"
+            android:defaultValue="true"
+            android:summary="use"
+            android:title="Auto start" />
+    </PreferenceCategory>
+</PreferenceScreen>

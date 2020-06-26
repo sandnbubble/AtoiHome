@@ -6,77 +6,38 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/buttonStartService"
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="76dp"
-        android:background="@color/colorPrimary"
-        android:text="Start"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ToolbarTheme"
+        />
 
-    <Button
-        android:id="@+id/buttonStopService"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
-        android:background="@color/colorPrimary"
-        android:text="Stop"
-        app:layout_constraintStart_toEndOf="@+id/buttonStartService"
-        app:layout_constraintTop_toTopOf="@+id/buttonStartService" />
-
-    <Button
-        android:id="@+id/buttonExit"
-        android:layout_width="78dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="Exit"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.809"
-        app:layout_constraintStart_toEndOf="@+id/buttonStopService"
-        app:layout_constraintTop_toTopOf="@+id/buttonStopService" />
+    <ImageButton
+        android:id="@+id/buttonUpload"
+        android:layout_width="68dp"
+        android:layout_height="63dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/upload64"
+        android:src="@drawable/upload64"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="372dp"
-        android:layout_height="317dp"
+        android:layout_width="361dp"
+        android:layout_height="488dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonUploadImage"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.25"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonStopService"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
-
-    <Button
-        android:id="@+id/buttonUploadImage"
-        android:layout_width="375dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:background="@color/colorPrimary"
-        android:text="Upload image"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
-        app:layout_constraintHorizontal_bias="0.493"
-        app:layout_constraintStart_toStartOf="@+id/imageView" />
-
-    <EditText
-        android:id="@+id/edURL"
-        android:layout_width="374dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:ems="10"
-        android:inputType="textPostalAddress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
 </android.support.constraint.ConstraintLayout>

@@ -11,6 +11,7 @@ namespace AtoiHomeServiceLib
     public enum MessageType
     {
         GET_DATA = 0,
+        SET_ENV,
         UPLOAD_IMAGE,
         DOWNLOAD_IMAGE,
         NOTIFYSERVICE_CLOSING,
@@ -19,23 +20,50 @@ namespace AtoiHomeServiceLib
         DISCONNECTED_CLIENT,
     }
 
+    [DataContract]
+    public class CustomerServiceFault
+    {
+        [DataMember]
+        public string ErrorMessage { get; set; }
+
+        [DataMember]
+        public IpInfo ipInfo { get; set; }
+    }
+
+    [DataContract]
+    public class IpInfo
+    {
+        [DataMember]
+        public string strPublicIP { get; set; }
+
+        [DataMember]
+        public string strLocalIP { get; set; }
+    }
+
     [ServiceContract(Namespace = "http://www.atoihome.com", SessionMode = SessionMode.Required, CallbackContract = typeof(ICallbackService))]
     public interface INotifyService
     {
-        [OperationContract(IsOneWay = true)]
-        void Connect(TextTransferEventArgs e);
+        [OperationContract]
+        bool Connect(OneClickShotEventArgs e);
 
         [OperationContract(IsOneWay = true)]
-        void Disconnect(TextTransferEventArgs e);
-        
-            [OperationContract(IsOneWay = true)]
-        void SendMessage(TextTransferEventArgs e);
+        void Disconnect(OneClickShotEventArgs e);
+
+        [OperationContract(IsOneWay = true)]
+        void SendMessage(OneClickShotEventArgs e);
+
+        //[OperationContract(IsOneWay = true)]
+        //void CallbackAllClients(Action<ICallbackService> action);
+
+        [OperationContract]
+        [FaultContractAttribute(typeof(CustomerServiceFault))]
+        IpInfo GetHostPublicIP();
     }
 
     public interface ICallbackService
     {
         [OperationContract(IsOneWay = true)]
-        void SendCallbackMessage(TextTransferEventArgs e);
+        void SendCallbackMessage(OneClickShotEventArgs e);
 
     }
 }

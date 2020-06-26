@@ -1,0 +1,57 @@
+﻿@model IEnumerable<AtoiHomeWeb.Models.UploadImageModels>
+
+@{
+    ViewBag.Title = "List of uploaded image";
+}
+
+@using PagedList.Mvc; 
+@using PagedList; 
+
+<!-- import the included stylesheet for some (very basic) default styling -->
+@*<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />*@
+
+@*<h2>List of uploaded image</h2>*@
+<p>
+    <table class="table">
+        @*<tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UploadDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ImagePath)
+            </th>
+            <th></th>
+        </tr>*@
+
+        @foreach (var Item in ViewBag.OnePageOfImages)
+        {
+            <tr>
+                <td>
+                    @Item.UserID
+                </td>
+                <td>
+                    @Item.UploadDate
+                </td>
+                <td>
+                    @Item.ImagePath
+                </td>
+                <td>
+                    @Html.ActionLink("Details", "Details", new { id = Item.ID }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = Item.ID })
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" align="center">
+                    <img src="~/Uploadfiles/@Url.Content(Item.ImagePath)" width=400 />
+                </td>
+            </tr>
+        }
+    </table>
+</p>
+<!-- output a paging control that lets the user navigation to the previous page, next page, etc -->
+@Html.PagedListPager((IPagedList)ViewBag.OnePageOfImages, page => Url.Action("Index", new { page }))
+
+

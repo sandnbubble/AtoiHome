@@ -1,4 +1,4 @@
-package com.atoihome.OneClick;
+package com.atoihome.oneclick;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

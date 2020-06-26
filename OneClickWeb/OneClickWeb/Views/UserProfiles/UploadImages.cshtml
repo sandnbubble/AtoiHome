@@ -1,0 +1,46 @@
+﻿@model IEnumerable<OneClickWeb.Models.UploadImage>
+
+@{
+    ViewBag.Title = "UploadImages";
+}
+
+<h2>Uploaded image list by "@ViewData["Email"]"</h2>
+
+@*<p>
+        @Html.ActionLink("Create New", "Create")
+    </p>*@
+<table class="table">
+    <tr>
+        @*<th>
+                @Html.DisplayNameFor(model => model.UserID)
+            </th>*@
+        <th>
+            @Html.DisplayNameFor(model => model.UploadDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ImagePath)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.UserID)
+                </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.UploadDate)
+            </td>
+            <td>
+                @Html.ActionLink(item.ImagePath, "Details", "UploadImages", new { id = item.ID }, null)
+            </td>
+            @*<td>
+                    @Html.ActionLink("Edit", "Edit", "UploadImages", new { id=item.ID }, null) |
+                    @Html.ActionLink("Details", "Details", "UploadImages", new {id=item.ID}, null)|
+                    @Html.ActionLink("Delete", "Delete", "UploadImages", new { id=item.ID }, null)
+                </td>*@
+        </tr>
+    }
+
+</table>
